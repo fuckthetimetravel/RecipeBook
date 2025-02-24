@@ -1,0 +1,34 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="RecipeBook.Views.ProfilePage"
+             BackgroundColor="#A38B7D">
+
+    <VerticalStackLayout Padding="30" Spacing="20"
+                         VerticalOptions="Center" HorizontalOptions="Center">
+
+        <Frame BackgroundColor="#4A3F35" Padding="20"
+               CornerRadius="15" WidthRequest="300">
+
+            <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+
+                <Image Source="profile.png" WidthRequest="80" HeightRequest="80"
+                       BackgroundColor="White" 
+                       HorizontalOptions="Center"/>
+
+                <Label Text="{Binding CurrentUser.Name}" FontSize="22"
+                       FontAttributes="Bold" TextColor="White"
+                       HorizontalOptions="Center"/>
+
+                <Frame BackgroundColor="White" CornerRadius="10"
+                       Padding="10" WidthRequest="250">
+                    <Label Text="{Binding CurrentUser.Description}"
+                           FontSize="16" TextColor="Black"/>
+                </Frame>
+
+                <Button Text="Logout" Command="{Binding LogoutCommand}"
+                        BackgroundColor="#FF6F61" TextColor="White"
+                        />
+            </VerticalStackLayout>
+        </Frame>
+    </VerticalStackLayout>
+</ContentPage>

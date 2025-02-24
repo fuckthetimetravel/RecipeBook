@@ -1,0 +1,16 @@
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:views="clr-namespace:RecipeBook.Views"
+       x:Class="RecipeBook.AppShell"
+       FlyoutBehavior="Disabled">
+
+    <ShellContent Title="Login" Route="login" ContentTemplate="{DataTemplate views:LoginPage}" />
+    <ShellContent Title="Register" Route="register" ContentTemplate="{DataTemplate views:RegistrationPage}" />
+    <ShellContent Title="Profile" Route="profile" ContentTemplate="{DataTemplate views:ProfilePage}" />
+
+
+    <!--<ShellContent Title="My Recipes" Route="myRecipes" ContentTemplate="{DataTemplate views:MyRecipesPage}" />
+    <ShellContent Title="Search" Route="search" ContentTemplate="{DataTemplate views:SearchRecipesPage}" />
+    <ShellContent Title="Favorites" Route="favorites" ContentTemplate="{DataTemplate views:FavoriteRecipesPage}" />-->
+
+</Shell>
