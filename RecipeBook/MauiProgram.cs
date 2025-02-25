@@ -21,6 +21,7 @@ namespace RecipeBook
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
+
             builder.Services.AddSingleton<FirestoreAuthService>();
             builder.Services.AddSingleton<FirestoreService>();
 

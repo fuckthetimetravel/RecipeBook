@@ -73,6 +73,15 @@
 	    <DependentUpon>RegistrPage.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
+		
+	<ItemGroup>
+	  <MauiXaml Update="Views\AddRecipePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\SearchRecipesPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
 
 
 

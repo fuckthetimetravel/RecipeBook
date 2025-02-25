@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
-using RecipeBook.Services; // Используем новый AuthService
+using RecipeBook.Services; 
 
 namespace RecipeBook.ViewModels;
 

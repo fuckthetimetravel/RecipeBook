@@ -3,7 +3,25 @@
        xmlns:views="clr-namespace:RecipeBook.Views"
        x:Class="RecipeBook.AppShell">
 
-    <ShellContent Title="Login" Route="login" ContentTemplate="{DataTemplate views:LoginPage}" />
-    <ShellContent Title="Register" Route="register" ContentTemplate="{DataTemplate views:RegistrPage}" />
-    <ShellContent Title="Profile" Route="profile" ContentTemplate="{DataTemplate views:ProfilePage}" />
+
+    <TabBar>
+        <ShellContent Title="Login" Route="login" ContentTemplate="{DataTemplate views:LoginPage}" />
+        <ShellContent Title="Register" Route="register" ContentTemplate="{DataTemplate views:RegistrPage}" />
+        <ShellContent Title="Profile" Route="profile" ContentTemplate="{DataTemplate views:ProfilePage}" />
+        <ShellContent Title="Search" Route="search" ContentTemplate="{DataTemplate views:SearchRecipesPage}" />
+        <ShellContent Title="AddRecipe" Route="addRecipe" ContentTemplate="{DataTemplate views:AddRecipePage}" />
+    </TabBar>
+    <!--<TabBar>
+        <Tab Title="Profile" Icon="profile_icon.png">
+            <ShellContent Route="profile" ContentTemplate="{DataTemplate views:LoginPage}" />
+        </Tab>
+
+        <Tab Title="Search" Icon="search_icon.png">
+            <ShellContent Route="search" ContentTemplate="{DataTemplate views:SearchRecipesPage}" />
+        </Tab>
+
+        <Tab Title="Add Recipe" Icon="add_icon.png">
+            <ShellContent Route="addRecipe" ContentTemplate="{DataTemplate views:AddRecipePage}" />
+        </Tab>
+    </TabBar>-->
 </Shell>

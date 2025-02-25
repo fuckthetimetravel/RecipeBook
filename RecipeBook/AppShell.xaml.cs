@@ -14,6 +14,11 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("profile", typeof(ProfilePage));
         Routing.RegisterRoute("login", typeof(LoginPage));
         Routing.RegisterRoute("register", typeof(RegistrPage));
+        Routing.RegisterRoute("addRecipe", typeof(AddRecipePage));
+        Routing.RegisterRoute("search", typeof(SearchRecipesPage));
+
+
+
     }
 
     /// <summary>
@@ -25,8 +30,8 @@ public partial class AppShell : Shell
 
         if (string.IsNullOrEmpty(token))
         {
-            // Если пользователь не вошел, перенаправляем на страницу профиля
-            await GoToAsync("//profile");
+            await Shell.Current.GoToAsync("//login");
         }
+
     }
 }

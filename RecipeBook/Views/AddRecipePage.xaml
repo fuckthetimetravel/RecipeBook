@@ -1,0 +1,81 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="RecipeBook.Views.AddRecipePage"
+             BackgroundColor="#A38B7D"
+             Title="Add Recipe">
+
+	<ScrollView>
+		<VerticalStackLayout Padding="30" Spacing="20" HorizontalOptions="Center" VerticalOptions="Center">
+
+			<Frame BackgroundColor="#4A3F35" Padding="25"
+                   CornerRadius="20" WidthRequest="320"
+                   HasShadow="True">
+
+				<VerticalStackLayout Spacing="15">
+
+					<Label Text="Add New Recipe"
+                           FontSize="26"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           HorizontalOptions="Center" />
+
+					<Frame BackgroundColor="White" CornerRadius="10" Padding="5">
+						<Entry Placeholder="Recipe Title"
+                               Text="{Binding RecipeTitle}"
+                               TextColor="Black" />
+					</Frame>
+
+					<Frame BackgroundColor="White" CornerRadius="10" Padding="5">
+						<Editor Placeholder="Recipe Description"
+                                Text="{Binding RecipeDescription}"
+                                TextColor="Black"
+                                AutoSize="TextChanges" />
+					</Frame>
+
+					<Button Text="Add Ingredient"
+                            Command="{Binding AddIngredientCommand}"
+                            BackgroundColor="#FF6F61"
+                            TextColor="White"
+                            CornerRadius="10"
+                            HeightRequest="50" />
+
+					<CollectionView ItemsSource="{Binding Ingredients}">
+						<CollectionView.ItemTemplate>
+							<DataTemplate>
+								<Label Text="{Binding}"
+                                       FontSize="16"
+                                       TextColor="White" />
+							</DataTemplate>
+						</CollectionView.ItemTemplate>
+					</CollectionView>
+
+					<Button Text="Add Step"
+                            Command="{Binding AddStepCommand}"
+                            BackgroundColor="#FF6F61"
+                            TextColor="White"
+                            CornerRadius="10"
+                            HeightRequest="50" />
+
+					<CollectionView ItemsSource="{Binding Steps}">
+						<CollectionView.ItemTemplate>
+							<DataTemplate>
+								<Label Text="{Binding}"
+                                       FontSize="16"
+                                       TextColor="White" />
+							</DataTemplate>
+						</CollectionView.ItemTemplate>
+					</CollectionView>
+
+					<Button Text="Save Recipe"
+                            Command="{Binding SaveRecipeCommand}"
+                            BackgroundColor="#4CAF50"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            CornerRadius="10"
+                            HeightRequest="50" />
+				</VerticalStackLayout>
+			</Frame>
+
+		</VerticalStackLayout>
+	</ScrollView>
+</ContentPage>

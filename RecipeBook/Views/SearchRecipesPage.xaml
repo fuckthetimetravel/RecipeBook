@@ -1,0 +1,48 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="RecipeBook.Views.SearchRecipesPage"
+             BackgroundColor="#A38B7D"
+             Title="Search Recipes">
+
+	<VerticalStackLayout Padding="30" Spacing="20" HorizontalOptions="Center" VerticalOptions="Start">
+
+		<Frame BackgroundColor="#4A3F35" Padding="10" CornerRadius="15" WidthRequest="300">
+			<HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+				<Image Source="search_icon.png" WidthRequest="24" Margin="5,0" />
+				<Entry Placeholder="Search recipes..."
+                       Text="{Binding SearchQuery}"
+                       TextColor="White"
+                       PlaceholderColor="LightGray"
+                       BackgroundColor="Transparent" />
+				<Button Text="Search"
+                        Command="{Binding SearchCommand}"
+                        BackgroundColor="#FF6F61"
+                        TextColor="White"
+                        CornerRadius="10" />
+			</HorizontalStackLayout>
+		</Frame>
+
+		<CollectionView ItemsSource="{Binding Recipes}" SelectionMode="Single">
+			<CollectionView.ItemTemplate>
+				<DataTemplate>
+					<Frame BackgroundColor="#4A3F35"
+                           CornerRadius="15"
+                           Padding="15"
+                           Margin="5"
+                           HasShadow="True">
+						<VerticalStackLayout Spacing="8">
+							<Label Text="{Binding Title}"
+                                   FontAttributes="Bold"
+                                   FontSize="20"
+                                   TextColor="White" />
+							<Label Text="{Binding Description}"
+                                   FontSize="14"
+                                   TextColor="LightGray" />
+						</VerticalStackLayout>
+					</Frame>
+				</DataTemplate>
+			</CollectionView.ItemTemplate>
+		</CollectionView>
+
+	</VerticalStackLayout>
+</ContentPage>
