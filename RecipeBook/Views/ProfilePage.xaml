@@ -1,34 +1,69 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="RecipeBook.Views.ProfilePage"
-             BackgroundColor="#A38B7D">
+             BackgroundColor="#A38B7D"
+             Title="Profile">
 
-    <VerticalStackLayout Padding="30" Spacing="20"
-                         VerticalOptions="Center" HorizontalOptions="Center">
+	<VerticalStackLayout Padding="30" Spacing="20"
+                         HorizontalOptions="Center" VerticalOptions="Center">
 
-        <Frame BackgroundColor="#4A3F35" Padding="20"
-               CornerRadius="15" WidthRequest="300">
+		<!-- Карточка профиля -->
+		<Frame BackgroundColor="#4A3F35" Padding="25"
+               CornerRadius="20" WidthRequest="320"
+               HasShadow="True">
 
-            <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+			<VerticalStackLayout Spacing="15" HorizontalOptions="Center">
 
-                <Image Source="profile.png" WidthRequest="80" HeightRequest="80"
-                       BackgroundColor="White" 
-                       HorizontalOptions="Center"/>
+				<!-- Изображение профиля -->
+				<Frame BackgroundColor="White" WidthRequest="100" HeightRequest="100"
+                       CornerRadius="50" HasShadow="True" Padding="0"
+                       HorizontalOptions="Center">
+					<Image Source="profile.png" WidthRequest="100" HeightRequest="100" />
+				</Frame>
 
-                <Label Text="{Binding CurrentUser.Name}" FontSize="22"
-                       FontAttributes="Bold" TextColor="White"
-                       HorizontalOptions="Center"/>
+				<!-- Имя пользователя -->
+				<Label Text="{Binding FirstName}"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       HorizontalOptions="Center" />
 
-                <Frame BackgroundColor="White" CornerRadius="10"
-                       Padding="10" WidthRequest="250">
-                    <Label Text="{Binding CurrentUser.Description}"
-                           FontSize="16" TextColor="Black"/>
-                </Frame>
+				<Label Text="{Binding LastName}"
+                       FontSize="20"
+                       TextColor="LightGray"
+                       HorizontalOptions="Center" />
 
-                <Button Text="Logout" Command="{Binding LogoutCommand}"
-                        BackgroundColor="#FF6F61" TextColor="White"
-                        />
-            </VerticalStackLayout>
-        </Frame>
-    </VerticalStackLayout>
+				<!-- Информация о пользователе -->
+				<VerticalStackLayout Spacing="8" Padding="10,20,10,10"
+                                     BackgroundColor="#5B4D42">
+
+					<Label Text="Email:"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+					<Label Text="{Binding Email}"
+                           TextColor="LightGray"
+                           FontSize="16" />
+
+					<Label Text="Birth Date:"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           Margin="0,10,0,0" />
+					<Label Text="{Binding BirthDate}"
+                           TextColor="LightGray"
+                           FontSize="16" />
+				</VerticalStackLayout>
+
+				<!-- Кнопка выхода -->
+				<Button Text="Logout"
+                        Command="{Binding LogoutCommand}"
+                        BackgroundColor="#FF6F61"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="10"
+                        WidthRequest="200"
+                        HorizontalOptions="Center" />
+			</VerticalStackLayout>
+
+		</Frame>
+	</VerticalStackLayout>
 </ContentPage>

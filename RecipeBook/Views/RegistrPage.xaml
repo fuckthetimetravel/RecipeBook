@@ -1,0 +1,29 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="RecipeBook.Views.RegistrPage"
+             BackgroundColor="#A38B7D">
+
+    <VerticalStackLayout Padding="20" Spacing="15" HorizontalOptions="Center" VerticalOptions="Center">
+
+            <Label Text="Register" FontSize="24" HorizontalOptions="Center" TextColor="White" Margin="0, 0, 0, 20" />
+
+            <Entry Placeholder="First Name" Text="{Binding FirstName}" BackgroundColor="White" />
+            <Entry Placeholder="Last Name" Text="{Binding LastName}" BackgroundColor="White" />
+            <Entry Placeholder="Email" Text="{Binding Email}" BackgroundColor="White" />
+
+            <DatePicker Date="{Binding BirthDate}" TextColor="Black" BackgroundColor="White" />
+
+            <Entry Placeholder="Password" IsPassword="True" Text="{Binding Password}" BackgroundColor="White" />
+            <Entry Placeholder="Repeat Password" IsPassword="True" Text="{Binding RepeatPassword}" BackgroundColor="White" />
+
+            <Button Text="Register" Command="{Binding RegisterCommand}" BackgroundColor="#F28B82" TextColor="White" CornerRadius="10" />
+
+            <Button Text="Already have an account? Login" 
+                    Command="{Binding NavigateToLoginCommand}" 
+                    BackgroundColor="Transparent" 
+                    TextColor="White" 
+                    Padding="10" />
+
+    </VerticalStackLayout>
+
+</ContentPage>

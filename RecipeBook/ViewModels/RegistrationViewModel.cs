@@ -1,48 +1,65 @@
-﻿using System.Threading.Tasks;
-using RecipeBook.FirebaseConfig;
-using Microsoft.Maui.Controls;
+﻿using Microsoft.Maui.Controls;
+using RecipeBook.Services; // Подключаем новый AuthService
+using System;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
-namespace RecipeBook.ViewModels;
-
-public class RegistrationViewModel : BaseViewModel
+namespace RecipeBook.ViewModels
 {
-    private readonly FirestoreAuthService _authService;
-    private string _email;
-    private string _password;
-
-    public string Email
+    public class RegistrationViewModel : BaseViewModel
     {
-        get => _email;
-        set { _email = value; OnPropertyChanged(); }
-    }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
+        public DateTime BirthDate { get; set; } = DateTime.Today;
+        public string Password { get; set; }
+        public string RepeatPassword { get; set; }
 
-    public string Password
-    {
-        get => _password;
-        set { _password = value; OnPropertyChanged(); }
-    }
+        public ICommand RegisterCommand => new Command(async () => await RegisterAsync());
+        public ICommand NavigateToLoginCommand => new Command(async () => await Shell.Current.GoToAsync("//login"));
 
-    public Command RegisterCommand { get; }
-    public Command NavigateToLoginCommand { get; }
-
-    public RegistrationViewModel(FirestoreAuthService authService)
-    {
-        _authService = authService;
-        RegisterCommand = new Command(async () => await RegisterAsync());
-        NavigateToLoginCommand = new Command(async () => await Shell.Current.GoToAsync("//login"));
-    }
-
-    private async Task RegisterAsync()
-    {
-        try
+        private async Task RegisterAsync()
         {
-            var token = await _authService.RegisterUserAsync(Email, Password);
-            await SecureStorage.SetAsync("auth_token", token);
-            await Shell.Current.GoToAsync("//profile");
+            if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
+            {
+                await ShowAlert("Error", "Email and Password are required.");
+                return;
+            }
+
+            if (Password != RepeatPassword)
+            {
+                await ShowAlert("Error", "Passwords do not match.");
+                return;
+            }
+
+            try
+            {
+                // 📨 Передаём дату рождения при регистрации
+                bool isRegistered = await AuthService.RegisterUser(
+                    Email, Password, FirstName, LastName, BirthDate.ToString("yyyy-MM-dd"));
+
+                if (isRegistered)
+                {
+                    await ShowAlert("Success", "Registration completed.");
+                    await Shell.Current.GoToAsync("//login");
+                }
+                else
+                {
+                    await ShowAlert("Error", "Registration failed. Please try again.");
+                }
+            }
+            catch (Exception ex)
+            {
+                await ShowAlert("Error", ex.Message);
+            }
         }
-        catch (Exception ex)
+
+        /// <summary>
+        /// Утилитарный метод для отображения сообщений
+        /// </summary>
+        private static async Task ShowAlert(string title, string message)
         {
-            await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
+            await Application.Current.MainPage.DisplayAlert(title, message, "OK");
         }
     }
 }

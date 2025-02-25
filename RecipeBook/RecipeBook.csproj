@@ -61,21 +61,19 @@
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
 	</ItemGroup>
-
+		
 	<ItemGroup>
-	  <Folder Include="Services\" />
+		<Page Include="Views\LoginPage.xaml" />
+		<Page Include="Views\ProfilePage.xaml" />
+		<Page Include="Views\RegistrPage.xaml" />
+	</ItemGroup>
+		
+	<ItemGroup>
+	  <Compile Update="Views\RegistrPage.xaml.cs">
+	    <DependentUpon>RegistrPage.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <MauiXaml Update="Views\LoginPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\ProfilePage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\RegistrationPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	</ItemGroup>
+
 
 </Project>

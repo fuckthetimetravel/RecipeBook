@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json;
-using System.Text;
-using RecipeBook.Models;
 using System.Threading.Tasks;
+using RecipeBook.Models;
 
 namespace RecipeBook.FirebaseConfig
 {
@@ -19,47 +16,41 @@ namespace RecipeBook.FirebaseConfig
             _httpClient = FirebaseConfig.GetHttpClient();
         }
 
+
         /// <summary>
-        /// Добавить рецепт в Firestore
+        /// Универсальный метод для отправки данных в Firebase Realtime Database
+        /// </summary>
+        public async Task<bool> PostDataAsync<T>(string url, T data)
+        {
+            var json = JsonSerializer.Serialize(data);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PutAsync($"{FirebaseConfig.RealtimeDatabaseUrl}/{url}.json", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to POST data: {error}");
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+
+        /// <summary>
+        /// Добавить рецепт в Realtime Database
         /// </summary>
         public async Task AddRecipeAsync(string userId, Recipe recipe)
         {
-            string url = $"{FirebaseConfig.FirestoreBaseUrl}/users/{userId}/recipes";
+            string url = $"{FirebaseConfig.RealtimeDatabaseUrl}/users/{userId}/recipes.json";
 
-            var json = JsonSerializer.Serialize(new { fields = recipe.ToFirestoreFormat() });
+            var json = JsonSerializer.Serialize(recipe);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync(url, content);
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception("Error adding recipe");
-            }
-        }
-
-        /// <summary>
-        /// Получить список рецептов пользователя
-        /// </summary>
-        public async Task<List<Recipe>> GetUserRecipesAsync(string userId)
-        {
-            string url = $"{FirebaseConfig.FirestoreBaseUrl}/users/{userId}/recipes";
-
-            var response = await _httpClient.GetAsync(url);
-            var json = await response.Content.ReadAsStringAsync();
-
-            return FirestoreParser.ParseRecipes(json);
-        }
-
-        /// <summary>
-        /// Удалить рецепт
-        /// </summary>
-        public async Task DeleteRecipeAsync(string userId, string recipeId)
-        {
-            string url = $"{FirebaseConfig.FirestoreBaseUrl}/users/{userId}/recipes/{recipeId}";
-
-            var response = await _httpClient.DeleteAsync(url);
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception("Error deleting recipe");
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Error adding recipe: {error}");
             }
         }
     }

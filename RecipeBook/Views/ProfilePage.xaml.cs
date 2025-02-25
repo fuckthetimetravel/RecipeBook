@@ -9,6 +9,6 @@ public partial class ProfilePage : ContentPage
     public ProfilePage()
     {
         InitializeComponent();
-        BindingContext = new ProfileViewModel(new FirestoreAuthService());
+        BindingContext = new ProfileViewModel();
     }
 }

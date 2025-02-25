@@ -23,7 +23,7 @@ public class FirestoreAuthService
     /// <summary>
     /// Регистрация нового пользователя
     /// </summary>
-    public async Task<string> RegisterUserAsync(string email, string password)
+    public async Task<string> RegisterUserAsync(string email, string password, UserProfile profile)
     {
         string url = $"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={FirebaseConfig.ApiKey}";
 
@@ -35,8 +35,28 @@ public class FirestoreAuthService
         var result = await response.Content.ReadAsStringAsync();
 
         var data = JsonSerializer.Deserialize<FirebaseAuthResponse>(result);
+        if (data?.IdToken == null)
+            throw new Exception("Registration failed");
 
-        return data?.IdToken ?? throw new Exception("Registration failed");
+        // Сохранение данных профиля в Realtime Database
+        await SaveUserProfileAsync(data.LocalId, profile);
+
+        return data.IdToken;
+    }
+
+    private async Task SaveUserProfileAsync(string userId, UserProfile profile)
+    {
+        string url = $"{FirebaseConfig.RealtimeDatabaseUrl}/users/{userId}.json";
+
+        var json = JsonSerializer.Serialize(profile);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await _httpClient.PutAsync(url, content);
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Failed to save user profile: {error}");
+        }
     }
 
     /// <summary>
@@ -55,6 +75,22 @@ public class FirestoreAuthService
 
         var data = JsonSerializer.Deserialize<FirebaseAuthResponse>(result);
         return data?.IdToken ?? throw new Exception("Login failed");
+    }
+
+    public async Task<bool> PostDataAsync<T>(string url, T data)
+    {
+        var json = JsonSerializer.Serialize(data);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await _httpClient.PutAsync($"{FirebaseConfig.RealtimeDatabaseUrl}/{url}.json", content);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Failed to POST data: {error}");
+        }
+
+        return response.IsSuccessStatusCode;
     }
 
     /// <summary>
@@ -120,4 +156,13 @@ public class FirebaseUserInfo
 {
     public string LocalId { get; set; }
     public string Email { get; set; }
+}
+
+
+public class UserProfile
+{
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Email { get; set; }
+    public string BirthDate { get; set; } // Дата рождения как строка "yyyy-MM-dd"
 }

@@ -4,11 +4,11 @@ using RecipeBook.FirebaseConfig;
 
 namespace RecipeBook.Views;
 
-public partial class RegistrationPage : ContentPage
+public partial class RegistrPage : ContentPage
 {
-    public RegistrationPage()
+    public RegistrPage()
     {
         InitializeComponent();
-        BindingContext = new RegistrationViewModel(new FirestoreAuthService());
+        BindingContext = new RegistrationViewModel();
     }
 }

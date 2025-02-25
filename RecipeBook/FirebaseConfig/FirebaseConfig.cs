@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Net.Http;
 
 namespace RecipeBook.FirebaseConfig
 {
@@ -13,10 +9,12 @@ namespace RecipeBook.FirebaseConfig
         public static readonly string FirestoreBaseUrl = $"https://firestore.googleapis.com/v1/projects/{ProjectId}/databases/(default)/documents";
         public static readonly string StorageBaseUrl = $"https://firebasestorage.googleapis.com/v0/b/{ProjectId}.appspot.com/o";
 
+        // Добавлен URL для Realtime Database
+        public static readonly string RealtimeDatabaseUrl = $"https://{ProjectId}-default-rtdb.europe-west1.firebasedatabase.app/";
+
         public static HttpClient GetHttpClient()
         {
             return new HttpClient();
         }
     }
-
 }

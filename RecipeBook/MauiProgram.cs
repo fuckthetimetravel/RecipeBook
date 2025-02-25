@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using RecipeBook.FirebaseConfig;
+using RecipeBook.ViewModels;
 using RecipeBook.Views;
 
 namespace RecipeBook
@@ -19,8 +21,14 @@ namespace RecipeBook
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
+            builder.Services.AddSingleton<FirestoreAuthService>();
+            builder.Services.AddSingleton<FirestoreService>();
 
-            builder.Services.AddTransient<RegistrationPage>();
+            builder.Services.AddTransient<RegistrationViewModel>();
+            builder.Services.AddTransient<LoginViewModel>();
+            builder.Services.AddTransient<ProfileViewModel>();
+
+            builder.Services.AddTransient<RegistrPage>();
             builder.Services.AddTransient<LoginPage>();
             builder.Services.AddTransient<ProfilePage>();
 

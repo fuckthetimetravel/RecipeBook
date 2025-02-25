@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Threading.Tasks;
-using RecipeBook.FirebaseConfig;
-using RecipeBook.Models;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
+using RecipeBook.Services;
 
 namespace RecipeBook.ViewModels;
 
 public class ProfileViewModel : BaseViewModel
 {
-    private readonly FirestoreAuthService _authService;
     private string _email;
-    private string _password;
-    private User _currentUser;
+    private string _firstName;
+    private string _lastName;
+    private string _birthDate;
     private bool _isAuthenticated;
 
     public string Email
@@ -25,25 +24,33 @@ public class ProfileViewModel : BaseViewModel
         }
     }
 
-    public string Password
+    public string FirstName
     {
-        get => _password;
+        get => _firstName;
         set
         {
-            _password = value;
+            _firstName = value;
             OnPropertyChanged();
         }
     }
 
-    public User CurrentUser
+    public string LastName
     {
-        get => _currentUser;
+        get => _lastName;
         set
         {
-            _currentUser = value;
-            IsAuthenticated = _currentUser != null;
+            _lastName = value;
             OnPropertyChanged();
-            OnPropertyChanged(nameof(IsAuthenticated));
+        }
+    }
+
+    public string BirthDate
+    {
+        get => _birthDate;
+        set
+        {
+            _birthDate = value;
+            OnPropertyChanged();
         }
     }
 
@@ -57,84 +64,70 @@ public class ProfileViewModel : BaseViewModel
         }
     }
 
-    public Command LoginCommand { get; }
-    public Command RegisterCommand { get; }
     public Command LogoutCommand { get; }
 
-    public ProfileViewModel(FirestoreAuthService authService)
+    public ProfileViewModel()
     {
-        _authService = authService;
-
-        LoginCommand = new Command(async () => await LoginAsync());
-        RegisterCommand = new Command(async () => await RegisterAsync());
         LogoutCommand = new Command(async () => await LogoutAsync());
-
         LoadUserProfile();
     }
 
-    private async void LoadUserProfile()
+    /// <summary>
+    /// Загрузка данных профиля пользователя из AuthService
+    /// </summary>
+    private void LoadUserProfile()
     {
         try
         {
-            var token = await SecureStorage.GetAsync("auth_token");
-            if (!string.IsNullOrEmpty(token))
+            if (!string.IsNullOrEmpty(AuthService.IdToken))
             {
-                CurrentUser = await _authService.GetUserProfileAsync(token);
+                Email = AuthService.Email;
+                FirstName = AuthService.FirstName;
+                LastName = AuthService.LastName;
+                BirthDate = AuthService.BirthDate;
+                IsAuthenticated = true;
+            }
+            else
+            {
+                IsAuthenticated = false;
             }
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
+            ShowAlert("Error", ex.Message);
         }
     }
 
-    private async Task LoginAsync()
-    {
-        try
-        {
-            var token = await _authService.LoginUserAsync(Email, Password);
-            await SecureStorage.SetAsync("auth_token", token);
-            LoadUserProfile();
-            await Application.Current.MainPage.DisplayAlert("Success", "Login successful!", "OK");
-        }
-        catch (Exception ex)
-        {
-            await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
-        }
-    }
-
-    private async Task RegisterAsync()
-    {
-        try
-        {
-            var token = await _authService.RegisterUserAsync(Email, Password);
-            await SecureStorage.SetAsync("auth_token", token);
-            LoadUserProfile();
-            await Application.Current.MainPage.DisplayAlert("Success", "Registration successful!", "OK");
-        }
-        catch (Exception ex)
-        {
-            await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
-        }
-    }
-
+    /// <summary>
+    /// Выход из аккаунта
+    /// </summary>
     private async Task LogoutAsync()
     {
         try
         {
-            await _authService.LogoutAsync();
-            CurrentUser = null;
-            Email = string.Empty;
-            Password = string.Empty;
+            SecureStorage.Remove("auth_token");
+            AuthService.IdToken = null;
+            AuthService.LocalId = null;
 
-            // Перенаправляем пользователя на страницу входа
+            Email = string.Empty;
+            FirstName = string.Empty;
+            LastName = string.Empty;
+            BirthDate = string.Empty;
+            IsAuthenticated = false;
+
             await Shell.Current.GoToAsync("//login");
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
+            await ShowAlert("Error", ex.Message);
         }
     }
 
-
+    /// <summary>
+    /// Отображение сообщения об ошибке
+    /// </summary>
+    private static async Task ShowAlert(string title, string message)
+    {
+        await Application.Current.MainPage.DisplayAlert(title, message, "OK");
+    }
 }
