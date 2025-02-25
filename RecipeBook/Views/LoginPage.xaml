@@ -17,15 +17,20 @@
                        FontAttributes="Bold"
                        TextColor="White"/>
 
-                <Entry Placeholder="Email" Text="{Binding Email}"
+				<Frame BackgroundColor="White" CornerRadius="10" Padding="5">
+
+					<Entry Placeholder="Email" Text="{Binding Email}"
                        BackgroundColor="White"
                        />
+				</Frame>
 
-                <Entry Placeholder="Password" IsPassword="True"
+				<Frame BackgroundColor="White" CornerRadius="10" Padding="5">
+					<Entry Placeholder="Password" IsPassword="True"
                        Text="{Binding Password}"
                        BackgroundColor="White"
                        />
-
+				</Frame>
+				
                 <Button Text="Login" Command="{Binding LoginCommand}"
                         BackgroundColor="#FF6F61" TextColor="White"
                         />
