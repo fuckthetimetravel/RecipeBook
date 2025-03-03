@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RecipeBook.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -153,6 +154,61 @@ namespace RecipeBook.Services
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
             return await httpClient.PutAsync(url, content);
         }
+
+        public static async Task<bool> PostRecipeAsync(string title, string description, string ingredients, string steps)
+        {
+            if (string.IsNullOrEmpty(IdToken) || string.IsNullOrEmpty(LocalId))
+            {
+                Console.WriteLine("User is not authenticated.");
+                return false;
+            }
+
+            var url = $"{DatabaseUrl}/recipes/{LocalId}.json?auth={IdToken}";
+
+            var newRecipe = new RecipeModel
+            {
+                Title = title,
+                Description = description,
+                Ingredients = ingredients,
+                Steps = steps,
+                CreatedAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+            };
+
+            var response = await PostJson(url, newRecipe);
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error posting recipe: {error}");
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+
+        public static async Task<List<RecipeModel>> GetRecipesAsync()
+        {
+            if (string.IsNullOrEmpty(IdToken) || string.IsNullOrEmpty(LocalId))
+            {
+                Console.WriteLine("User is not authenticated.");
+                return new List<RecipeModel>();
+            }
+
+            var url = $"{DatabaseUrl}/recipes/{LocalId}.json?auth={IdToken}";
+
+            using var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync(url);
+            var responseBody = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Error fetching recipes: {responseBody}");
+                return new List<RecipeModel>();
+            }
+
+            var recipesDict = JsonSerializer.Deserialize<Dictionary<string, RecipeModel>>(responseBody);
+            return recipesDict?.Values.ToList() ?? new List<RecipeModel>();
+        }
+
+
     }
 
     public class FirebaseSignUpResponse

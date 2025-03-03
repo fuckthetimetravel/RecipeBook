@@ -28,10 +28,14 @@ namespace RecipeBook
             builder.Services.AddTransient<RegistrationViewModel>();
             builder.Services.AddTransient<LoginViewModel>();
             builder.Services.AddTransient<ProfileViewModel>();
+            builder.Services.AddTransient<SearchRecipesViewModel>();
+            builder.Services.AddTransient<AddRecipeViewModel>();
 
             builder.Services.AddTransient<RegistrPage>();
             builder.Services.AddTransient<LoginPage>();
             builder.Services.AddTransient<ProfilePage>();
+            builder.Services.AddTransient<SearchRecipesPage>();
+            builder.Services.AddTransient<AddRecipePage>();
 
 
             return builder.Build();

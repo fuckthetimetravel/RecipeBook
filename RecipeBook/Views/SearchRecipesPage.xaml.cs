@@ -1,4 +1,5 @@
 ﻿using Microsoft.Maui.Controls;
+using RecipeBook.ViewModels;
 
 namespace RecipeBook.Views
 {
@@ -7,6 +8,7 @@ namespace RecipeBook.Views
         public SearchRecipesPage()
         {
             InitializeComponent();
+            BindingContext = new SearchRecipesViewModel();
         }
     }
 }
