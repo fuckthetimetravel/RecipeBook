@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:RecipeBook.Converters"
+             x:Class="RecipeBook.Views.RecipeDetailsPage"
+             x:Name="RecipeDetailsPageView">
+	<ContentPage.Resources>
+		<converters:Base64ToImageSourceConverter x:Key="Base64ToImageSourceConverter" />
+		<converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
+	</ContentPage.Resources>
+
+	<ScrollView>
+		<Grid RowDefinitions="Auto,*,Auto" Padding="20">
+			<VerticalStackLayout Grid.Row="1" Spacing="20">
+				<!-- Recipe Header -->
+				<VerticalStackLayout Spacing="10">
+					<Label Text="{Binding Recipe.Title}" FontSize="24" HorizontalOptions="Center" FontAttributes="Bold" />
+					<Label Text="{Binding Recipe.Description}" HorizontalOptions="Center" />
+				</VerticalStackLayout>
+
+				<!-- Recipe Image -->
+				<Image Source="{Binding Recipe.ImageBase64, Converter={StaticResource Base64ToImageSourceConverter}}"
+                       HeightRequest="200" Aspect="AspectFill"
+                       IsVisible="{Binding Recipe.ImageBase64, Converter={StaticResource StringNotEmptyConverter}}" />
+
+				<!-- Action Buttons -->
+				<HorizontalStackLayout HorizontalOptions="Center" Spacing="10" IsVisible="{Binding IsOwner}">
+					<Button Text="Edit Recipe" Command="{Binding EditRecipeCommand}" />
+					<Button Text="Delete Recipe" Command="{Binding DeleteRecipeCommand}" BackgroundColor="Red" />
+				</HorizontalStackLayout>
+
+				<Button Text="{Binding IsFavorite, Converter={StaticResource BoolToFavoriteTextConverter}}"
+                        Command="{Binding ToggleFavoriteCommand}"
+                        HorizontalOptions="Center" />
+
+				<!-- Ingredients Section -->
+				<Frame Padding="15">
+					<VerticalStackLayout Spacing="10">
+						<Label Text="Ingredients" FontSize="18" FontAttributes="Bold" />
+
+						<CollectionView ItemsSource="{Binding Recipe.Ingredients}">
+							<CollectionView.ItemTemplate>
+								<DataTemplate>
+									<Grid ColumnDefinitions="*, Auto" Padding="0,5">
+										<Label Grid.Column="0" Text="{Binding Name}" />
+										<Label Grid.Column="1" Text="{Binding Quantity}" />
+									</Grid>
+								</DataTemplate>
+							</CollectionView.ItemTemplate>
+						</CollectionView>
+					</VerticalStackLayout>
+				</Frame>
+
+				<!-- Steps Section -->
+				<Frame Padding="15">
+					<VerticalStackLayout Spacing="10">
+						<Label Text="Preparation Steps" FontSize="18" FontAttributes="Bold" />
+
+						<CollectionView ItemsSource="{Binding Recipe.Steps}">
+							<CollectionView.ItemTemplate>
+								<DataTemplate>
+									<Grid Padding="0,10">
+										<Label Text="{Binding Text}" />
+									</Grid>
+								</DataTemplate>
+							</CollectionView.ItemTemplate>
+						</CollectionView>
+					</VerticalStackLayout>
+				</Frame>
+			</VerticalStackLayout>
+
+			<ActivityIndicator Grid.RowSpan="3" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HorizontalOptions="Center" VerticalOptions="Center" />
+		</Grid>
+	</ScrollView>
+</ContentPage>

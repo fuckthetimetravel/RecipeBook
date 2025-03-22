@@ -1,82 +1,54 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Storage;
-using RecipeBook.Services; 
+using RecipeBook.Services;
 
-namespace RecipeBook.ViewModels;
-
-public class LoginViewModel : BaseViewModel
+namespace RecipeBook.ViewModels
 {
-    private string _email;
-    private string _password;
-
-    public string Email
+    public class LoginViewModel : BaseViewModel
     {
-        get => _email;
-        set
+        private readonly AuthService _authService;
+        private string _email;
+        private string _password;
+
+        public string Email
         {
-            _email = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string Password
-    {
-        get => _password;
-        set
-        {
-            _password = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Command LoginCommand { get; }
-    public Command NavigateToRegisterCommand { get; }
-
-    public LoginViewModel()
-    {
-        LoginCommand = new Command(async () => await LoginAsync());
-        NavigateToRegisterCommand = new Command(async () => await Shell.Current.GoToAsync("//register"));
-    }
-
-    /// <summary>
-    /// Авторизация пользователя через AuthService
-    /// </summary>
-    private async Task LoginAsync()
-    {
-        if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
-        {
-            await ShowAlert("Error", "Email and Password are required.");
-            return;
+            get => _email;
+            set => SetProperty(ref _email, value);
         }
 
-        try
+        public string Password
         {
-            bool isLoggedIn = await AuthService.LoginUser(Email, Password);
+            get => _password;
+            set => SetProperty(ref _password, value);
+        }
 
-            if (isLoggedIn)
+        public ICommand LoginCommand { get; }
+        public ICommand RegisterCommand { get; }
+
+        public LoginViewModel(AuthService authService)
+        {
+            _authService = authService;
+            Title = "Login";
+
+            LoginCommand = new Command(async () => await ExecuteLoginCommand());
+            RegisterCommand = new Command(async () => await Shell.Current.GoToAsync("/register"));
+        }
+
+        private async Task ExecuteLoginCommand()
+        {
+            await ExecuteWithBusyIndicator(async () =>
             {
-                await SecureStorage.SetAsync("auth_token", AuthService.IdToken);
-                await ShowAlert("Success", "Login successful!");
-                await Shell.Current.GoToAsync("//profile");
-            }
-            else
-            {
-                await ShowAlert("Error", "Invalid email or password.");
-            }
-        }
-        catch (Exception ex)
-        {
-            await ShowAlert("Error", ex.Message);
-        }
-    }
+                if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
+                {
+                    ErrorMessage = "Email and password are required";
+                    return;
+                }
 
-    /// <summary>
-    /// Утилитарный метод для отображения сообщений
-    /// </summary>
-    private static async Task ShowAlert(string title, string message)
-    {
-        await Application.Current.MainPage.DisplayAlert(title, message, "OK");
+                await _authService.SignInAsync(Email, Password);
+                await Shell.Current.GoToAsync("/profile");
+            });
+        }
     }
 }

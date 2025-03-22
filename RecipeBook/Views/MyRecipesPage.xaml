@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:RecipeBook.Converters"
+             x:Class="RecipeBook.Views.MyRecipesPage"
+             Title="My Recipes">
+	<ContentPage.Resources>
+		<converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
+	</ContentPage.Resources>
+
+	<Grid RowDefinitions="Auto,*,Auto" Padding="20">
+		<Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto">
+			<Label Text="My Recipes" FontSize="24" FontAttributes="Bold" VerticalOptions="Center" />
+			<Button Grid.Column="1" Text="Refresh" Command="{Binding LoadRecipesCommand}" Margin="0,0,10,0" />
+			<Button Grid.Column="2" Text="Add Recipe" Command="{Binding AddRecipeCommand}" />
+		</Grid>
+
+		<CollectionView Grid.Row="1" ItemsSource="{Binding Recipes}" Margin="0,20,0,0"
+                        EmptyView="No recipes found. Add your first recipe!">
+			<CollectionView.ItemTemplate>
+				<DataTemplate>
+					<Frame Margin="0,0,0,10" Padding="10">
+						<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto">
+							<Label Grid.Row="0" Grid.Column="0" Text="{Binding Title}" FontAttributes="Bold" FontSize="16" />
+							<Label Grid.Row="1" Grid.Column="0" Text="{Binding Description}" LineBreakMode="TailTruncation" MaxLines="2" />
+							<Button Grid.RowSpan="2" Grid.Column="1" Text="View"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RecipeTappedCommand}"
+                                    CommandParameter="{Binding .}"
+                                    VerticalOptions="Center" />
+						</Grid>
+					</Frame>
+				</DataTemplate>
+			</CollectionView.ItemTemplate>
+		</CollectionView>
+
+		<Label Grid.Row="2" Text="{Binding ErrorMessage}" TextColor="Red" IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+
+		<ActivityIndicator Grid.RowSpan="3" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HorizontalOptions="Center" VerticalOptions="Center" />
+	</Grid>
+</ContentPage>

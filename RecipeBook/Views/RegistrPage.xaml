@@ -1,85 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="RecipeBook.Views.RegistrPage"
-             BackgroundColor="#A38B7D"
-             Title="Register">
+             Title="{Binding Title}">
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+        <VerticalStackLayout Grid.Row="1" Spacing="20" VerticalOptions="Center">
+            <Label Text="Recipe Book" FontSize="32" HorizontalOptions="Center" FontAttributes="Bold" Margin="0,0,0,20"/>
 
-    <ScrollView>
-        <VerticalStackLayout Padding="30" Spacing="20" 
-                             HorizontalOptions="Center" VerticalOptions="Center">
+            <Label Text="Create a new account" FontSize="18" HorizontalOptions="Center" Margin="0,0,0,20"/>
 
-            <Frame BackgroundColor="#4A3F35" Padding="25"
-                   CornerRadius="20" WidthRequest="320"
-                   HasShadow="True">
+            <Entry Placeholder="Email" Text="{Binding Email}" Keyboard="Email" />
 
-                <VerticalStackLayout Spacing="15">
+            <Entry Placeholder="Password" Text="{Binding Password}" IsPassword="True" />
 
-                    <Label Text="Create Your Account" 
-                           FontSize="28" 
-                           FontAttributes="Bold" 
-                           TextColor="White"
-                           HorizontalOptions="Center" />
+            <Entry Placeholder="Confirm Password" Text="{Binding ConfirmPassword}" IsPassword="True" />
 
-                    <VerticalStackLayout Spacing="10">
+            <Button Text="Register" Command="{Binding RegisterCommand}" Margin="0,20,0,0" />
 
-                        <Frame BackgroundColor="White" CornerRadius="10" Padding="5">
-                            <Entry Placeholder="First Name" 
-                                   Text="{Binding FirstName}" 
-                                   TextColor="Black" />
-                        </Frame>
+            <Label Text="{Binding ErrorMessage}" TextColor="Red" IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
 
-                        <Frame BackgroundColor="White" CornerRadius="10" Padding="5">
-                            <Entry Placeholder="Last Name" 
-                                   Text="{Binding LastName}" 
-                                   TextColor="Black" />
-                        </Frame>
-
-                        <Frame BackgroundColor="White" CornerRadius="10" Padding="5">
-                            <Entry Placeholder="Email" 
-                                   Text="{Binding Email}" 
-                                   Keyboard="Email" 
-                                   TextColor="Black" />
-                        </Frame>
-
-                        <Frame BackgroundColor="White" CornerRadius="10" Padding="5">
-                            <DatePicker Date="{Binding BirthDate}" 
-                                        TextColor="Black" 
-                                        BackgroundColor="Transparent" />
-                        </Frame>
-
-                        <Frame BackgroundColor="White" CornerRadius="10" Padding="5">
-                            <Entry Placeholder="Password" 
-                                   IsPassword="True" 
-                                   Text="{Binding Password}" 
-                                   TextColor="Black" />
-                        </Frame>
-
-                        <Frame BackgroundColor="White" CornerRadius="10" Padding="5">
-                            <Entry Placeholder="Repeat Password" 
-                                   IsPassword="True" 
-                                   Text="{Binding RepeatPassword}" 
-                                   TextColor="Black" />
-                        </Frame>
-                    </VerticalStackLayout>
-
-                    <Button Text="Register" 
-                            Command="{Binding RegisterCommand}" 
-                            BackgroundColor="#FF6F61" 
-                            TextColor="White"
-                            FontAttributes="Bold" 
-                            CornerRadius="15" 
-                            HeightRequest="50"
-                            HorizontalOptions="FillAndExpand" />
-
-                    <Button Text="Already have an account? Login" 
-                            Command="{Binding NavigateToLoginCommand}" 
-                            BackgroundColor="Transparent" 
-                            TextColor="White" 
-                            FontAttributes="Bold" 
-                            Padding="10"
-                            HorizontalOptions="Center" />
-                </VerticalStackLayout>
-            </Frame>
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="5" Margin="0,20,0,0">
+                <Label Text="Already have an account?" VerticalOptions="Center" />
+                <Button Text="Login" Command="{Binding LoginCommand}" BackgroundColor="Transparent" TextColor="{StaticResource Primary}" Padding="0" />
+            </HorizontalStackLayout>
         </VerticalStackLayout>
-    </ScrollView>
+
+        <ActivityIndicator Grid.RowSpan="3" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HorizontalOptions="Center" VerticalOptions="Center" />
+    </Grid>
 </ContentPage>

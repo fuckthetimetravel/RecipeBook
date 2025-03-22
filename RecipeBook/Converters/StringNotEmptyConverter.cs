@@ -4,24 +4,20 @@ using Microsoft.Maui.Controls;
 
 namespace RecipeBook.Converters
 {
-    public class InverseBooleanConverter : IValueConverter
+    public class StringNotEmptyConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool boolValue)
+            if (value is string stringValue)
             {
-                return !boolValue;
+                return !string.IsNullOrEmpty(stringValue);
             }
-            return value;
+            return false;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool boolValue)
-            {
-                return !boolValue;
-            }
-            return value;
+            throw new NotImplementedException();
         }
     }
 }

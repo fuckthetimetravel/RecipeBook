@@ -7,8 +7,6 @@ using System.Text.Json;
 
 namespace RecipeBook.Models
 {
-
-
     /// <summary>
     /// Универсальный конвертер для Firebase Firestore
     /// </summary>
@@ -37,51 +35,103 @@ namespace RecipeBook.Models
         /// <summary>
         /// Преобразование Firestore JSON в объект Recipe
         /// </summary>
-        public static Recipe ParseRecipe(JsonElement element)
+        public static RecipeModel ParseRecipe(JsonElement element)
         {
-            return new Recipe
+            var recipe = new RecipeModel
             {
-                Id = GetStringValue(element.GetProperty("name")),
+                Id = GetStringValue(element.GetProperty("name")).Split('/').Last(),
                 Title = GetStringValue(element.GetProperty("fields").GetProperty("title")),
                 Description = GetStringValue(element.GetProperty("fields").GetProperty("description")),
-                Ingredients = ParseIngredients(element.GetProperty("fields").GetProperty("ingredients")),
-                Steps = ParseSteps(element.GetProperty("fields").GetProperty("steps")),
                 AuthorId = GetStringValue(element.GetProperty("fields").GetProperty("authorId"))
             };
-        }
 
-        private static List<Ingredient> ParseIngredients(JsonElement element)
-        {
-            return element.GetProperty("arrayValue").GetProperty("values").EnumerateArray()
-                .Select(ParseIngredient).ToList();
-        }
-
-        private static Ingredient ParseIngredient(JsonElement element)
-        {
-            var fields = element.GetProperty("mapValue").GetProperty("fields");
-            return new Ingredient
+            // Парсинг ингредиентов
+            if (element.GetProperty("fields").TryGetProperty("ingredients", out var ingredientsElement))
             {
-                Name = GetStringValue(fields.GetProperty("name")),
-                Quantity = fields.GetProperty("quantity").GetProperty("doubleValue").GetDouble(),
-                Unit = GetStringValue(fields.GetProperty("unit"))
-            };
-        }
+                recipe.Ingredients = ParseIngredients(ingredientsElement);
+            }
 
-        private static List<RecipeStep> ParseSteps(JsonElement element)
-        {
-            return element.GetProperty("arrayValue").GetProperty("values").EnumerateArray()
-                .Select(ParseStep).ToList();
-        }
-
-        private static RecipeStep ParseStep(JsonElement element)
-        {
-            var fields = element.GetProperty("mapValue").GetProperty("fields");
-            return new RecipeStep
+            // Парсинг шагов
+            if (element.GetProperty("fields").TryGetProperty("steps", out var stepsElement))
             {
-                Text = GetStringValue(fields.GetProperty("text")),
-                ImageUrl = GetStringValue(fields.GetProperty("imageUrl"))
+                recipe.Steps = ParseSteps(stepsElement);
+            }
+
+            return recipe;
+        }
+
+        /// <summary>
+        /// Преобразование Firestore JSON в список ингредиентов
+        /// </summary>
+        public static List<Ingredient> ParseIngredients(JsonElement element)
+        {
+            var ingredients = new List<Ingredient>();
+
+            if (element.TryGetProperty("arrayValue", out var array) && array.TryGetProperty("values", out var values))
+            {
+                foreach (var value in values.EnumerateArray())
+                {
+                    if (value.TryGetProperty("mapValue", out var mapValue) &&
+                        mapValue.TryGetProperty("fields", out var fields))
+                    {
+                        var ingredient = new Ingredient
+                        {
+                            Name = GetStringValue(fields.GetProperty("name")),
+                            Quantity = GetStringValue(fields.GetProperty("quantity"))
+                        };
+                        ingredients.Add(ingredient);
+                    }
+                }
+            }
+
+            return ingredients;
+        }
+
+        /// <summary>
+        /// Преобразование Firestore JSON в список шагов рецепта
+        /// </summary>
+        public static List<RecipeStep> ParseSteps(JsonElement element)
+        {
+            var steps = new List<RecipeStep>();
+
+            if (element.TryGetProperty("arrayValue", out var array) && array.TryGetProperty("values", out var values))
+            {
+                foreach (var value in values.EnumerateArray())
+                {
+                    if (value.TryGetProperty("mapValue", out var mapValue) &&
+                        mapValue.TryGetProperty("fields", out var fields))
+                    {
+                        var step = new RecipeStep
+                        {
+                            Text = GetStringValue(fields.GetProperty("text")),
+                            //ImageUrl = GetStringValue(fields.GetProperty("imageUrl"))
+                        };
+                        steps.Add(step);
+                    }
+                }
+            }
+
+            return steps;
+        }
+
+        /// <summary>
+        /// Преобразование Firestore JSON в объект User
+        /// </summary>
+        public static User ParseUser(JsonElement element)
+        {
+            var user = new User
+            {
+                Id = GetStringValue(element.GetProperty("name")).Split('/').Last(),
+                Email = GetStringValue(element.GetProperty("fields").GetProperty("email"))
             };
+
+            // Парсинг избранных рецептов
+            if (element.GetProperty("fields").TryGetProperty("favoriteRecipes", out var favoritesElement))
+            {
+                user.FavoriteRecipes = GetStringArray(favoritesElement);
+            }
+
+            return user;
         }
     }
-
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace RecipeBook.Models
@@ -11,21 +12,13 @@ namespace RecipeBook.Models
     /// </summary>
     public class User
     {
+        [JsonPropertyName("id")]
         public string Id { get; set; }
+
+        [JsonPropertyName("email")]
         public string Email { get; set; }
+
+        [JsonPropertyName("favoriteRecipes")]
         public List<string> FavoriteRecipes { get; set; } = new(); // Список избранных рецептов
-
-        /// <summary>
-        /// Конвертация в формат Firestore
-        /// </summary>
-        public Dictionary<string, object> ToFirestoreFormat()
-        {
-            return new Dictionary<string, object>
-        {
-            { "email", new { stringValue = Email } },
-            { "favoriteRecipes", new { arrayValue = new { values = FavoriteRecipes.Select(r => new { stringValue = r }).ToList() } } }
-        };
-        }
     }
-
 }

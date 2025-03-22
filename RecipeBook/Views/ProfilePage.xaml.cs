@@ -1,14 +1,27 @@
 ﻿using Microsoft.Maui.Controls;
 using RecipeBook.ViewModels;
-using RecipeBook.FirebaseConfig;
 
-namespace RecipeBook.Views;
-
-public partial class ProfilePage : ContentPage
+namespace RecipeBook.Views
 {
-    public ProfilePage()
+    public partial class ProfilePage : ContentPage
     {
-        InitializeComponent();
-        BindingContext = new ProfileViewModel();
+        private readonly ProfileViewModel _viewModel;
+
+        public ProfilePage(ProfileViewModel viewModel)
+        {
+            InitializeComponent();
+            BindingContext = viewModel;
+            _viewModel = viewModel;
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            // Refresh user data when page appears
+            // Вместо LoadUserCommand используем метод, который есть в ViewModel
+            _viewModel.IsBusy = true;
+            // Здесь можно добавить логику обновления данных пользователя
+            _viewModel.IsBusy = false;
+        }
     }
 }

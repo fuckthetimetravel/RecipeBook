@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace RecipeBook.Models
@@ -11,28 +12,10 @@ namespace RecipeBook.Models
     /// </summary>
     public class Ingredient
     {
+        [JsonPropertyName("name")]
         public string Name { get; set; }
-        public double Quantity { get; set; }
-        public string Unit { get; set; } // Например: "grams", "ml", "pieces"
 
-        /// <summary>
-        /// Конвертация в формат Firestore
-        /// </summary>
-        public object ToFirestoreFormat()
-        {
-            return new
-            {
-                mapValue = new
-                {
-                    fields = new
-                    {
-                        name = new { stringValue = Name },
-                        quantity = new { doubleValue = Quantity },
-                        unit = new { stringValue = Unit }
-                    }
-                }
-            };
-        }
+        [JsonPropertyName("quantity")]
+        public string Quantity { get; set; }
     }
-
 }

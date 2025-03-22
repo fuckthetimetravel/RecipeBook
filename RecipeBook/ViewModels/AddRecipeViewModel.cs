@@ -1,61 +1,229 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
+using RecipeBook.Models;
 using RecipeBook.Services;
 
 namespace RecipeBook.ViewModels
 {
     public class AddRecipeViewModel : BaseViewModel
     {
-        public string RecipeTitle { get; set; }
-        public string RecipeDescription { get; set; }
-        public ObservableCollection<string> Ingredients { get; set; } = new();
-        public ObservableCollection<string> Steps { get; set; } = new();
+        private readonly RecipeService _recipeService;
+        private string _title;
+        private string _description;
+        private ObservableCollection<Ingredient> _ingredients;
+        private ObservableCollection<RecipeStep> _steps;
+        private string _newIngredientName;
+        private string _newIngredientQuantity;
+        private string _newStepText;
+        private FileResult _selectedImage;
+        private string _selectedImageBase64;
 
-        public ICommand AddIngredientCommand => new Command(async () => await AddIngredientAsync());
-        public ICommand AddStepCommand => new Command(async () => await AddStepAsync());
-        public ICommand SaveRecipeCommand => new Command(async () => await SaveRecipeAsync());
-
-        private async Task AddIngredientAsync()
+        public string Title
         {
-            string ingredient = await Application.Current.MainPage.DisplayPromptAsync("New Ingredient", "Enter ingredient:");
-            if (!string.IsNullOrWhiteSpace(ingredient))
-            {
-                Ingredients.Add(ingredient);
-            }
+            get => _title;
+            set => SetProperty(ref _title, value);
         }
 
-        private async Task AddStepAsync()
+        public string Description
         {
-            string step = await Application.Current.MainPage.DisplayPromptAsync("New Step", "Enter step:");
-            if (!string.IsNullOrWhiteSpace(step))
-            {
-                Steps.Add(step);
-            }
+            get => _description;
+            set => SetProperty(ref _description, value);
         }
 
-        private async Task SaveRecipeAsync()
+        public ObservableCollection<Ingredient> Ingredients
         {
-            if (string.IsNullOrWhiteSpace(RecipeTitle) || string.IsNullOrWhiteSpace(RecipeDescription) ||
-                Ingredients.Count == 0 || Steps.Count == 0)
+            get => _ingredients;
+            set => SetProperty(ref _ingredients, value);
+        }
+
+        public ObservableCollection<RecipeStep> Steps
+        {
+            get => _steps;
+            set => SetProperty(ref _steps, value);
+        }
+
+        public string NewIngredientName
+        {
+            get => _newIngredientName;
+            set => SetProperty(ref _newIngredientName, value);
+        }
+
+        public string NewIngredientQuantity
+        {
+            get => _newIngredientQuantity;
+            set => SetProperty(ref _newIngredientQuantity, value);
+        }
+
+        public string NewStepText
+        {
+            get => _newStepText;
+            set => SetProperty(ref _newStepText, value);
+        }
+
+        public FileResult SelectedImage
+        {
+            get => _selectedImage;
+            set => SetProperty(ref _selectedImage, value);
+        }
+
+        public string SelectedImageBase64
+        {
+            get => _selectedImageBase64;
+            set => SetProperty(ref _selectedImageBase64, value);
+        }
+
+        public ICommand AddIngredientCommand { get; }
+        public ICommand RemoveIngredientCommand { get; }
+        public ICommand AddStepCommand { get; }
+        public ICommand RemoveStepCommand { get; }
+        public ICommand PickImageCommand { get; }
+        public ICommand TakePhotoCommand { get; }
+        public ICommand SaveRecipeCommand { get; }
+
+        public AddRecipeViewModel(RecipeService recipeService)
+        {
+            _recipeService = recipeService;
+            Title = "Add Recipe";
+            Ingredients = new ObservableCollection<Ingredient>();
+            Steps = new ObservableCollection<RecipeStep>();
+
+            AddIngredientCommand = new Command(ExecuteAddIngredientCommand);
+            RemoveIngredientCommand = new Command<Ingredient>(ExecuteRemoveIngredientCommand);
+            AddStepCommand = new Command(ExecuteAddStepCommand);
+            RemoveStepCommand = new Command<RecipeStep>(ExecuteRemoveStepCommand);
+            PickImageCommand = new Command(async () => await ExecutePickImageCommand());
+            TakePhotoCommand = new Command(async () => await ExecuteTakePhotoCommand());
+            SaveRecipeCommand = new Command(async () => await ExecuteSaveRecipeCommand());
+        }
+
+        private void ExecuteAddIngredientCommand()
+        {
+            if (string.IsNullOrWhiteSpace(NewIngredientName))
             {
-                await Application.Current.MainPage.DisplayAlert("Error", "All fields are required.", "OK");
+                ErrorMessage = "Ingredient name is required";
                 return;
             }
 
-            var success = await AuthService.PostRecipeAsync(RecipeTitle, RecipeDescription, string.Join(", ", Ingredients), string.Join(". ", Steps));
+            Ingredients.Add(new Ingredient
+            {
+                Name = NewIngredientName,
+                Quantity = NewIngredientQuantity
+            });
 
-            if (success)
+            NewIngredientName = string.Empty;
+            NewIngredientQuantity = string.Empty;
+        }
+
+        private void ExecuteRemoveIngredientCommand(Ingredient ingredient)
+        {
+            Ingredients.Remove(ingredient);
+        }
+
+        private void ExecuteAddStepCommand()
+        {
+            if (string.IsNullOrWhiteSpace(NewStepText))
             {
-                await Application.Current.MainPage.DisplayAlert("Success", "Recipe added!", "OK");
-                await Shell.Current.GoToAsync("//profile");
+                ErrorMessage = "Step description is required";
+                return;
             }
-            else
+
+            Steps.Add(new RecipeStep
             {
-                await Application.Current.MainPage.DisplayAlert("Error", "Failed to add recipe.", "OK");
+                Text = NewStepText
+            });
+
+            NewStepText = string.Empty;
+        }
+
+        private void ExecuteRemoveStepCommand(RecipeStep step)
+        {
+            Steps.Remove(step);
+        }
+
+        private async Task ExecutePickImageCommand()
+        {
+            try
+            {
+                var result = await MediaPicker.PickPhotoAsync(new MediaPickerOptions
+                {
+                    Title = "Select a photo"
+                });
+
+                if (result != null)
+                {
+                    SelectedImage = result;
+                    SelectedImageBase64 = await _recipeService.ConvertImageToBase64Async(result);
+                }
             }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error picking image: {ex.Message}";
+            }
+        }
+
+        private async Task ExecuteTakePhotoCommand()
+        {
+            try
+            {
+                var result = await MediaPicker.CapturePhotoAsync(new MediaPickerOptions
+                {
+                    Title = "Take a photo"
+                });
+
+                if (result != null)
+                {
+                    SelectedImage = result;
+                    SelectedImageBase64 = await _recipeService.ConvertImageToBase64Async(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error taking photo: {ex.Message}";
+            }
+        }
+
+        private async Task ExecuteSaveRecipeCommand()
+        {
+            await ExecuteWithBusyIndicator(async () =>
+            {
+                if (string.IsNullOrWhiteSpace(_title))
+                {
+                    ErrorMessage = "Recipe title is required";
+                    return;
+                }
+
+                var recipe = new RecipeModel
+                {
+                    Title = _title,
+                    Description = _description ?? string.Empty,
+                    Ingredients = new List<Ingredient>(Ingredients),
+                    Steps = new List<RecipeStep>(Steps),
+                    ImageBase64 = _selectedImageBase64 // Устанавливаем изображение для всего рецепта
+                };
+
+                await _recipeService.AddRecipeAsync(recipe);
+
+                // Reset form
+                _title = string.Empty;
+                _description = string.Empty;
+                Ingredients.Clear();
+                Steps.Clear();
+                SelectedImage = null;
+                SelectedImageBase64 = null;
+                OnPropertyChanged(nameof(Title));
+                OnPropertyChanged(nameof(Description));
+                OnPropertyChanged(nameof(SelectedImage));
+                OnPropertyChanged(nameof(SelectedImageBase64));
+
+                await Shell.Current.DisplayAlert("Success", "Recipe added successfully", "OK");
+
+                await Shell.Current.GoToAsync("/myrecipes");
+
+            });
         }
     }
 }

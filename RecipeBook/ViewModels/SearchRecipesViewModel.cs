@@ -1,5 +1,5 @@
-﻿using System.Collections.ObjectModel;
-using System.Linq;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
@@ -10,46 +10,147 @@ namespace RecipeBook.ViewModels
 {
     public class SearchRecipesViewModel : BaseViewModel
     {
-        public ObservableCollection<RecipeModel> Recipes { get; set; } = new();
-        public string SearchQuery { get; set; }
-        public ICommand SearchCommand => new Command(FilterRecipes);
+        private readonly RecipeService _recipeService;
+        private string _searchQuery;
+        private ObservableCollection<RecipeModel> _searchResults;
+        private ObservableCollection<Ingredient> _ingredients;
+        private string _newIngredientName;
+        private string _newIngredientQuantity;
 
-        public SearchRecipesViewModel()
+        public string SearchQuery
         {
-            LoadRecipesAsync();
+            get => _searchQuery;
+            set => SetProperty(ref _searchQuery, value);
         }
 
-        private async Task LoadRecipesAsync()
+        public ObservableCollection<RecipeModel> SearchResults
         {
-            var recipes = await AuthService.GetRecipesAsync();
-            if (recipes != null)
+            get => _searchResults;
+            set => SetProperty(ref _searchResults, value);
+        }
+
+        public ObservableCollection<Ingredient> Ingredients
+        {
+            get => _ingredients;
+            set => SetProperty(ref _ingredients, value);
+        }
+
+        public string NewIngredientName
+        {
+            get => _newIngredientName;
+            set => SetProperty(ref _newIngredientName, value);
+        }
+
+        public string NewIngredientQuantity
+        {
+            get => _newIngredientQuantity;
+            set => SetProperty(ref _newIngredientQuantity, value);
+        }
+
+        public ICommand SearchCommand { get; }
+        public ICommand RecipeTappedCommand { get; }
+        public ICommand AddIngredientCommand { get; }
+        public ICommand RemoveIngredientCommand { get; }
+        public ICommand FilterByIngredientsCommand { get; }
+        public ICommand LoadRecipesCommand { get; }
+
+        public SearchRecipesViewModel(RecipeService recipeService)
+        {
+            _recipeService = recipeService;
+            SearchResults = new ObservableCollection<RecipeModel>();
+            Ingredients = new ObservableCollection<Ingredient>();
+
+            SearchCommand = new Command(async () => await ExecuteSearchCommand());
+            RecipeTappedCommand = new Command<RecipeModel>(async (recipe) => await ExecuteRecipeTappedCommand(recipe));
+            AddIngredientCommand = new Command(ExecuteAddIngredientCommand);
+            RemoveIngredientCommand = new Command<Ingredient>(ExecuteRemoveIngredientCommand);
+            FilterByIngredientsCommand = new Command(async () => await ExecuteFilterByIngredientsCommand());
+            LoadRecipesCommand = new Command(async () => await LoadRecipesAsync());
+        }
+
+        public async Task LoadRecipesAsync()
+        {
+            await ExecuteWithBusyIndicator(async () =>
             {
-                Recipes.Clear();
+                var recipes = await _recipeService.GetAllRecipesAsync();
+
+                SearchResults.Clear();
                 foreach (var recipe in recipes)
                 {
-                    Recipes.Add(recipe);
+                    SearchResults.Add(recipe);
                 }
-            }
+            });
         }
 
-        private void FilterRecipes()
+        private async Task ExecuteSearchCommand()
         {
             if (string.IsNullOrWhiteSpace(SearchQuery))
             {
-                LoadRecipesAsync();
+                await LoadRecipesAsync();
+                return;
             }
-            else
-            {
-                var filtered = Recipes.Where(r =>
-                    r.Title.ToLower().Contains(SearchQuery.ToLower()) ||
-                    r.Description.ToLower().Contains(SearchQuery.ToLower())).ToList();
 
-                Recipes.Clear();
-                foreach (var recipe in filtered)
+            await ExecuteWithBusyIndicator(async () =>
+            {
+                var recipes = await _recipeService.SearchRecipesByTitleAsync(SearchQuery);
+
+                SearchResults.Clear();
+                foreach (var recipe in recipes)
                 {
-                    Recipes.Add(recipe);
+                    SearchResults.Add(recipe);
                 }
+            });
+        }
+
+        private async Task ExecuteRecipeTappedCommand(RecipeModel recipe)
+        {
+            if (recipe != null)
+            {
+                await Shell.Current.GoToAsync($"recipedetails?id={recipe.Id}");
             }
+        }
+
+        private void ExecuteAddIngredientCommand()
+        {
+            if (string.IsNullOrWhiteSpace(NewIngredientName))
+            {
+                ErrorMessage = "Ingredient name is required";
+                return;
+            }
+
+            Ingredients.Add(new Ingredient
+            {
+                Name = NewIngredientName,
+                Quantity = NewIngredientQuantity
+            });
+
+            NewIngredientName = string.Empty;
+            NewIngredientQuantity = string.Empty;
+        }
+
+        private void ExecuteRemoveIngredientCommand(Ingredient ingredient)
+        {
+            Ingredients.Remove(ingredient);
+        }
+
+        private async Task ExecuteFilterByIngredientsCommand()
+        {
+            if (Ingredients.Count == 0)
+            {
+                await LoadRecipesAsync();
+                return;
+            }
+
+            await ExecuteWithBusyIndicator(async () =>
+            {
+                var recipes = await _recipeService.FilterRecipesByIngredientsAsync(new List<Ingredient>(Ingredients));
+
+                SearchResults.Clear();
+                foreach (var recipe in recipes)
+                {
+                    SearchResults.Add(recipe);
+                }
+            });
         }
     }
 }

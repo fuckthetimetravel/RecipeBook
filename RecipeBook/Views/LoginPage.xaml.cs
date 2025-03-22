@@ -1,14 +1,14 @@
 ﻿using Microsoft.Maui.Controls;
 using RecipeBook.ViewModels;
-using RecipeBook.FirebaseConfig;
 
-namespace RecipeBook.Views;
-
-public partial class LoginPage : ContentPage
+namespace RecipeBook.Views
 {
-    public LoginPage()
+    public partial class LoginPage : ContentPage
     {
-        InitializeComponent();
-        BindingContext = new LoginViewModel();
+        public LoginPage(LoginViewModel viewModel)
+        {
+            InitializeComponent();
+            BindingContext = viewModel;
+        }
     }
 }

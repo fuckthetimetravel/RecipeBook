@@ -1,133 +1,56 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Storage;
+using RecipeBook.Models;
 using RecipeBook.Services;
 
-namespace RecipeBook.ViewModels;
-
-public class ProfileViewModel : BaseViewModel
+namespace RecipeBook.ViewModels
 {
-    private string _email;
-    private string _firstName;
-    private string _lastName;
-    private string _birthDate;
-    private bool _isAuthenticated;
-
-    public string Email
+    public class ProfileViewModel : BaseViewModel
     {
-        get => _email;
-        set
+        private readonly AuthService _authService;
+        private User _user;
+        private bool _isAuthenticated;
+
+        public User User
         {
-            _email = value;
-            OnPropertyChanged();
+            get => _user;
+            set => SetProperty(ref _user, value);
         }
-    }
 
-    public string FirstName
-    {
-        get => _firstName;
-        set
+        public bool IsAuthenticated
         {
-            _firstName = value;
-            OnPropertyChanged();
+            get => _isAuthenticated;
+            set => SetProperty(ref _isAuthenticated, value);
         }
-    }
 
-    public string LastName
-    {
-        get => _lastName;
-        set
+        public ICommand LogoutCommand { get; }
+        public ICommand LoginCommand { get; }
+        public ICommand RegisterCommand { get; }
+
+        public ProfileViewModel(AuthService authService)
         {
-            _lastName = value;
-            OnPropertyChanged();
-        }
-    }
+            _authService = authService;
+            Title = "Profile";
 
-    public string BirthDate
-    {
-        get => _birthDate;
-        set
+            LogoutCommand = new Command(ExecuteLogoutCommand);
+            LoginCommand = new Command(async () => await Shell.Current.GoToAsync("/login"));
+            RegisterCommand = new Command(async () => await Shell.Current.GoToAsync("/register"));
+
+            LoadUser();
+        }
+
+        public void LoadUser()
         {
-            _birthDate = value;
-            OnPropertyChanged();
+            User = _authService.CurrentUser;
+            IsAuthenticated = _authService.IsAuthenticated;
         }
-    }
 
-    public bool IsAuthenticated
-    {
-        get => _isAuthenticated;
-        set
+        private void ExecuteLogoutCommand()
         {
-            _isAuthenticated = value;
-            OnPropertyChanged();
+            _authService.SignOut();
+            LoadUser();
         }
-    }
-
-    public Command LogoutCommand { get; }
-
-    public ProfileViewModel()
-    {
-        LogoutCommand = new Command(async () => await LogoutAsync());
-        LoadUserProfile();
-    }
-
-    /// <summary>
-    /// Загрузка данных профиля пользователя из AuthService
-    /// </summary>
-    private void LoadUserProfile()
-    {
-        try
-        {
-            if (!string.IsNullOrEmpty(AuthService.IdToken))
-            {
-                Email = AuthService.Email;
-                FirstName = AuthService.FirstName;
-                LastName = AuthService.LastName;
-                BirthDate = AuthService.BirthDate;
-                IsAuthenticated = true;
-            }
-            else
-            {
-                IsAuthenticated = false;
-            }
-        }
-        catch (Exception ex)
-        {
-            ShowAlert("Error", ex.Message);
-        }
-    }
-
-    /// <summary>
-    /// Выход из аккаунта
-    /// </summary>
-    private async Task LogoutAsync()
-    {
-        try
-        {
-            SecureStorage.Remove("auth_token");
-            AuthService.IdToken = null;
-            AuthService.LocalId = null;
-
-            Email = string.Empty;
-            FirstName = string.Empty;
-            LastName = string.Empty;
-            BirthDate = string.Empty;
-            IsAuthenticated = false;
-
-            await Shell.Current.GoToAsync("//login");
-        }
-        catch (Exception ex)
-        {
-            await ShowAlert("Error", ex.Message);
-        }
-    }
-
-    /// <summary>
-    /// Отображение сообщения об ошибке
-    /// </summary>
-    private static async Task ShowAlert(string title, string message)
-    {
-        await Application.Current.MainPage.DisplayAlert(title, message, "OK");
     }
 }

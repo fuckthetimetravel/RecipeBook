@@ -1,65 +1,67 @@
-﻿using Microsoft.Maui.Controls;
-using RecipeBook.Services; // Подключаем новый AuthService
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.Maui.Controls;
+using RecipeBook.Services;
 
 namespace RecipeBook.ViewModels
 {
     public class RegistrationViewModel : BaseViewModel
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
-        public DateTime BirthDate { get; set; } = DateTime.Today;
-        public string Password { get; set; }
-        public string RepeatPassword { get; set; }
+        private readonly AuthService _authService;
+        private string _email;
+        private string _password;
+        private string _confirmPassword;
 
-        public ICommand RegisterCommand => new Command(async () => await RegisterAsync());
-        public ICommand NavigateToLoginCommand => new Command(async () => await Shell.Current.GoToAsync("//login"));
-
-        private async Task RegisterAsync()
+        public string Email
         {
-            if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
-            {
-                await ShowAlert("Error", "Email and Password are required.");
-                return;
-            }
-
-            if (Password != RepeatPassword)
-            {
-                await ShowAlert("Error", "Passwords do not match.");
-                return;
-            }
-
-            try
-            {
-                // 📨 Передаём дату рождения при регистрации
-                bool isRegistered = await AuthService.RegisterUser(
-                    Email, Password, FirstName, LastName, BirthDate.ToString("yyyy-MM-dd"));
-
-                if (isRegistered)
-                {
-                    await ShowAlert("Success", "Registration completed.");
-                    await Shell.Current.GoToAsync("//login");
-                }
-                else
-                {
-                    await ShowAlert("Error", "Registration failed. Please try again.");
-                }
-            }
-            catch (Exception ex)
-            {
-                await ShowAlert("Error", ex.Message);
-            }
+            get => _email;
+            set => SetProperty(ref _email, value);
         }
 
-        /// <summary>
-        /// Утилитарный метод для отображения сообщений
-        /// </summary>
-        private static async Task ShowAlert(string title, string message)
+        public string Password
         {
-            await Application.Current.MainPage.DisplayAlert(title, message, "OK");
+            get => _password;
+            set => SetProperty(ref _password, value);
+        }
+
+        public string ConfirmPassword
+        {
+            get => _confirmPassword;
+            set => SetProperty(ref _confirmPassword, value);
+        }
+
+        public ICommand RegisterCommand { get; }
+        public ICommand LoginCommand { get; }
+
+        public RegistrationViewModel(AuthService authService)
+        {
+            _authService = authService;
+            Title = "Register";
+
+            RegisterCommand = new Command(async () => await ExecuteRegisterCommand());
+            LoginCommand = new Command(async () => await Shell.Current.GoToAsync("/login"));
+        }
+
+        private async Task ExecuteRegisterCommand()
+        {
+            await ExecuteWithBusyIndicator(async () =>
+            {
+                if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password) || string.IsNullOrWhiteSpace(ConfirmPassword))
+                {
+                    ErrorMessage = "All fields are required";
+                    return;
+                }
+
+                if (Password != ConfirmPassword)
+                {
+                    ErrorMessage = "Passwords do not match";
+                    return;
+                }
+
+                await _authService.SignUpAsync(Email, Password);
+                await Shell.Current.GoToAsync("/profile");
+            });
         }
     }
 }

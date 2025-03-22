@@ -1,229 +1,183 @@
-﻿using RecipeBook.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using RecipeBook.Models;
 
 namespace RecipeBook.Services
 {
-    public static class AuthService
+    public class AuthService
     {
-        private const string ApiKey = "AIzaSyBRLxAAT7_j2cjY58LrclZ3z9bUo9OU8_c";
-        private const string DatabaseUrl = "https://recipebook-e2874-default-rtdb.europe-west1.firebasedatabase.app/";
+        private HttpClient _httpClient;
+        private string _authToken;
+        private User _currentUser;
 
-        public static string IdToken { get; set; }
-        public static string LocalId { get; set; }
-        public static string Email { get; set; }
-        public static string FirstName { get; set; }
-        public static string LastName { get; set; }
-        public static string BirthDate { get; private set; }
+        public User CurrentUser => _currentUser;
+        public bool IsAuthenticated => _currentUser != null;
+        public string AuthToken => _authToken;
 
-        public static async Task<bool> RegisterUser(string email, string password, string firstName, string lastName, string birthDate)
+        public AuthService()
         {
-            var signUpResponse = await SendSignUpRequest(email, password);
-            if (signUpResponse == null)
-            {
-                return false;
-            }
-
-            IdToken = signUpResponse.idToken;
-            LocalId = signUpResponse.localId;
-            Email = signUpResponse.email;
-
-            var userSaved = await SaveUserData(firstName, lastName, birthDate);
-            if (!userSaved)
-            {
-                return false;
-            }
-
-            FirstName = firstName;
-            LastName = lastName;
-            BirthDate = birthDate;
-
-            return true;
+            _httpClient = new HttpClient();
         }
 
-        public static async Task<bool> LoginUser(string email, string password)
+        public async Task<User> SignUpAsync(string email, string password)
         {
-            var signInResponse = await SendSignInRequest(email, password);
-            if (signInResponse == null)
+            var payload = new
             {
-                return false;
-            }
-
-            IdToken = signInResponse.idToken;
-            LocalId = signInResponse.localId;
-            Email = signInResponse.email;
-
-            var userData = await GetUserData();
-            if (userData != null)
-            {
-                FirstName = userData.firstName;
-                LastName = userData.lastName;
-            }
-
-            return true;
-        }
-
-        private static async Task<FirebaseSignUpResponse> SendSignUpRequest(string email, string password)
-        {
-            var url = $"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={ApiKey}";
-            var body = new { email, password, returnSecureToken = true };
-
-            var response = await PostJson(url, body);
-            if (!response.IsSuccessStatusCode)
-            {
-                return null;
-            }
-
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<FirebaseSignUpResponse>(responseBody);
-        }
-
-        private static async Task<FirebaseSignUpResponse> SendSignInRequest(string email, string password)
-        {
-            var url = $"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={ApiKey}";
-            var body = new { email, password, returnSecureToken = true };
-
-            var response = await PostJson(url, body);
-            if (!response.IsSuccessStatusCode)
-            {
-                return null;
-            }
-
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<FirebaseSignUpResponse>(responseBody);
-        }
-
-        private static async Task<bool> SaveUserData(string firstName, string lastName, string birthDate)
-        {
-            var url = $"{DatabaseUrl}/users/{LocalId}.json?auth={IdToken}";
-            var body = new { firstName, lastName, birthDate };
-
-            var response = await PutJson(url, body);
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Error saving user data: {error}");
-            }
-
-            return response.IsSuccessStatusCode;
-        }
-
-        private static async Task<UserData> GetUserData()
-        {
-            var url = $"{DatabaseUrl}/users/{LocalId}.json?auth={IdToken}";
-
-            using var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync(url);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-            {
-                Console.WriteLine($"Error fetching user data: {responseBody}");
-                return null;
-            }
-
-            var userData = JsonSerializer.Deserialize<UserData>(responseBody);
-
-            // ✅ Сохраняем дату рождения в AuthService
-            if (userData != null)
-            {
-                FirstName = userData.firstName;
-                LastName = userData.lastName;
-                BirthDate = userData.birthDate;
-            }
-
-            return userData;
-        }
-
-        private static async Task<HttpResponseMessage> PostJson(string url, object body)
-        {
-            using var httpClient = new HttpClient();
-            var jsonContent = JsonSerializer.Serialize(body);
-            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            return await httpClient.PostAsync(url, content);
-        }
-
-        private static async Task<HttpResponseMessage> PutJson(string url, object body)
-        {
-            using var httpClient = new HttpClient();
-            var jsonContent = JsonSerializer.Serialize(body);
-            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            return await httpClient.PutAsync(url, content);
-        }
-
-        public static async Task<bool> PostRecipeAsync(string title, string description, string ingredients, string steps)
-        {
-            if (string.IsNullOrEmpty(IdToken) || string.IsNullOrEmpty(LocalId))
-            {
-                Console.WriteLine("User is not authenticated.");
-                return false;
-            }
-
-            var url = $"{DatabaseUrl}/recipes/{LocalId}.json?auth={IdToken}";
-
-            var newRecipe = new RecipeModel
-            {
-                Title = title,
-                Description = description,
-                Ingredients = ingredients,
-                Steps = steps,
-                CreatedAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+                email,
+                password,
+                returnSecureToken = true
             };
 
-            var response = await PostJson(url, newRecipe);
+            var json = JsonSerializer.Serialize(payload);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync(FirebaseConfig.FirebaseConfig.GetSignUpUrl(), content);
+            var responseString = await response.Content.ReadAsStringAsync();
+
             if (!response.IsSuccessStatusCode)
             {
-                var error = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Error posting recipe: {error}");
+                var error = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
+                if (error.TryGetValue("error", out var errorDetails) &&
+                    errorDetails.TryGetProperty("message", out var errorMessage))
+                {
+                    throw new Exception($"Failed to sign up: {errorMessage.GetString()}");
+                }
+                throw new Exception($"Failed to sign up: {responseString}");
             }
 
-            return response.IsSuccessStatusCode;
+            var authResult = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
+            var userId = authResult["localId"].GetString();
+            _authToken = authResult["idToken"].GetString();
+
+            // Создаем пользователя в Realtime Database
+            _currentUser = new User
+            {
+                Id = userId,
+                Email = email,
+                FavoriteRecipes = new List<string>()
+            };
+
+            await CreateUserInDatabase(_currentUser);
+
+            return _currentUser;
         }
 
-        public static async Task<List<RecipeModel>> GetRecipesAsync()
+        public async Task<User> SignInAsync(string email, string password)
         {
-            if (string.IsNullOrEmpty(IdToken) || string.IsNullOrEmpty(LocalId))
+            var payload = new
             {
-                Console.WriteLine("User is not authenticated.");
-                return new List<RecipeModel>();
-            }
+                email,
+                password,
+                returnSecureToken = true
+            };
 
-            var url = $"{DatabaseUrl}/recipes/{LocalId}.json?auth={IdToken}";
+            var json = JsonSerializer.Serialize(payload);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            using var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync(url);
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var response = await _httpClient.PostAsync(FirebaseConfig.FirebaseConfig.GetSignInUrl(), content);
+            var responseString = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
-                Console.WriteLine($"Error fetching recipes: {responseBody}");
-                return new List<RecipeModel>();
+                var error = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
+                if (error.TryGetValue("error", out var errorDetails) &&
+                    errorDetails.TryGetProperty("message", out var errorMessage))
+                {
+                    throw new Exception($"Failed to sign in: {errorMessage.GetString()}");
+                }
+                throw new Exception($"Failed to sign in: {responseString}");
             }
 
-            var recipesDict = JsonSerializer.Deserialize<Dictionary<string, RecipeModel>>(responseBody);
-            return recipesDict?.Values.ToList() ?? new List<RecipeModel>();
+            var authResult = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
+            var userId = authResult["localId"].GetString();
+            _authToken = authResult["idToken"].GetString();
+
+            // Получаем данные пользователя из Realtime Database
+            _currentUser = await GetUserFromDatabase(userId);
+
+            return _currentUser;
         }
 
+        public void SignOut()
+        {
+            _currentUser = null;
+            _authToken = null;
+        }
 
-    }
+        private async Task CreateUserInDatabase(User user)
+        {
+            var url = $"{FirebaseConfig.FirebaseConfig.GetUserUrl(user.Id)}?auth={_authToken}";
+            var json = JsonSerializer.Serialize(user);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-    public class FirebaseSignUpResponse
-    {
-        public string idToken { get; set; }
-        public string email { get; set; }
-        public string refreshToken { get; set; }
-        public string expiresIn { get; set; }
-        public string localId { get; set; }
-    }
+            var request = new HttpRequestMessage(HttpMethod.Put, url);
+            request.Content = content;
 
-    public class UserData
-    {
-        public string firstName { get; set; }
-        public string lastName { get; set; }
-        public string birthDate { get; set; }
+            var response = await _httpClient.SendAsync(request);
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Failed to create user in database: {responseString}");
+            }
+        }
+
+        private async Task<User> GetUserFromDatabase(string userId)
+        {
+            var url = $"{FirebaseConfig.FirebaseConfig.GetUserUrl(userId)}?auth={_authToken}";
+
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+            var response = await _httpClient.SendAsync(request);
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Failed to get user from database: {responseString}");
+            }
+
+            var user = JsonSerializer.Deserialize<User>(responseString);
+            if (user == null)
+            {
+                // Если пользователь не найден, создаем новый
+                user = new User
+                {
+                    Id = userId,
+                    Email = "unknown@email.com", // Можно получить из токена
+                    FavoriteRecipes = new List<string>()
+                };
+                await CreateUserInDatabase(user);
+            }
+
+            // Убедимся, что ID установлен
+            user.Id = userId;
+
+            return user;
+        }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            var url = $"{FirebaseConfig.FirebaseConfig.GetUserUrl(user.Id)}?auth={_authToken}";
+
+            var json = JsonSerializer.Serialize(user);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var request = new HttpRequestMessage(HttpMethod.Put, url);
+            request.Content = content;
+
+            var response = await _httpClient.SendAsync(request);
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Failed to update user in database: {responseString}");
+            }
+
+            _currentUser = user;
+        }
     }
 }

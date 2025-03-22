@@ -1,27 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
        xmlns:views="clr-namespace:RecipeBook.Views"
-       x:Class="RecipeBook.AppShell">
+       x:Class="RecipeBook.AppShell"
+       FlyoutBehavior="Disabled">
 
-
-    <TabBar>
-        <ShellContent Title="Login" Route="login" ContentTemplate="{DataTemplate views:LoginPage}" />
-        <ShellContent Title="Register" Route="register" ContentTemplate="{DataTemplate views:RegistrPage}" />
-        <ShellContent Title="Profile" Route="profile" ContentTemplate="{DataTemplate views:ProfilePage}" />
-        <ShellContent Title="Search" Route="search" ContentTemplate="{DataTemplate views:SearchRecipesPage}" />
-        <ShellContent Title="AddRecipe" Route="addRecipe" ContentTemplate="{DataTemplate views:AddRecipePage}" />
-    </TabBar>
-    <!--<TabBar>
+    <TabBar x:Name="AuthenticatedTabBar" IsVisible="True">
         <Tab Title="Profile" Icon="profile_icon.png">
-            <ShellContent Route="profile" ContentTemplate="{DataTemplate views:LoginPage}" />
+            <ShellContent ContentTemplate="{DataTemplate views:ProfilePage}" />
+        </Tab>
+
+        <Tab Title="My Recipes" Icon="my_recipes_icon.png">
+            <ShellContent ContentTemplate="{DataTemplate views:MyRecipesPage}" />
         </Tab>
 
         <Tab Title="Search" Icon="search_icon.png">
-            <ShellContent Route="search" ContentTemplate="{DataTemplate views:SearchRecipesPage}" />
+            <ShellContent ContentTemplate="{DataTemplate views:SearchRecipesPage}" />
         </Tab>
 
-        <Tab Title="Add Recipe" Icon="add_icon.png">
-            <ShellContent Route="addRecipe" ContentTemplate="{DataTemplate views:AddRecipePage}" />
+        <Tab Title="Favorites" Icon="favorites_icon.png">
+            <ShellContent ContentTemplate="{DataTemplate views:FavoriteRecipesPage}" />
         </Tab>
-    </TabBar>-->
+    </TabBar>
+
+    <ShellContent Route="login" ContentTemplate="{DataTemplate views:LoginPage}" />
+    <ShellContent Route="register" ContentTemplate="{DataTemplate views:RegistrPage}" />
+    <ShellContent ContentTemplate="{DataTemplate views:AddRecipePage}" />
+    <ShellContent Route="recipedetails" ContentTemplate="{DataTemplate views:RecipeDetailsPage}" />
 </Shell>

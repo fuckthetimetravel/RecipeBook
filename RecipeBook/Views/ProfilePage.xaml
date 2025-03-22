@@ -1,69 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="RecipeBook.Views.ProfilePage"
-             BackgroundColor="#A38B7D"
-             Title="Profile">
+             Title="{Binding Title}">
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+        <!-- Authenticated User View -->
+        <VerticalStackLayout Grid.Row="1" Spacing="20" VerticalOptions="Center" IsVisible="{Binding IsAuthenticated}">
+            <Label Text="Your Profile" FontSize="24" HorizontalOptions="Center" FontAttributes="Bold" Margin="0,0,0,20"/>
 
-	<VerticalStackLayout Padding="30" Spacing="20"
-                         HorizontalOptions="Center" VerticalOptions="Center">
+            <Frame Padding="20" Margin="0,0,0,20">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Email" FontAttributes="Bold" />
+                    <Label Text="{Binding User.Email}" />
+                </VerticalStackLayout>
+            </Frame>
 
-		<!-- Карточка профиля -->
-		<Frame BackgroundColor="#4A3F35" Padding="25"
-               CornerRadius="20" WidthRequest="320"
-               HasShadow="True">
+            <Button Text="Logout" Command="{Binding LogoutCommand}" />
+        </VerticalStackLayout>
 
-			<VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+        <!-- Unauthenticated User View -->
+        <VerticalStackLayout Grid.Row="1" Spacing="20" VerticalOptions="Center" IsVisible="{Binding IsAuthenticated, Converter={StaticResource InverseBooleanConverter}}">
+            <Label Text="Recipe Book" FontSize="32" HorizontalOptions="Center" FontAttributes="Bold" Margin="0,0,0,20"/>
 
-				<!-- Изображение профиля -->
-				<Frame BackgroundColor="White" WidthRequest="100" HeightRequest="100"
-                       CornerRadius="50" HasShadow="True" Padding="0"
-                       HorizontalOptions="Center">
-					<Image Source="profile.png" WidthRequest="100" HeightRequest="100" />
-				</Frame>
+            <Label Text="Please login or register to continue" FontSize="18" HorizontalOptions="Center" Margin="0,0,0,20"/>
 
-				<!-- Имя пользователя -->
-				<Label Text="{Binding FirstName}"
-                       FontSize="26"
-                       FontAttributes="Bold"
-                       TextColor="White"
-                       HorizontalOptions="Center" />
+            <Button Text="Login" Command="{Binding LoginCommand}" Margin="0,0,0,10" />
 
-				<Label Text="{Binding LastName}"
-                       FontSize="20"
-                       TextColor="LightGray"
-                       HorizontalOptions="Center" />
+            <Button Text="Register" Command="{Binding RegisterCommand}" />
+        </VerticalStackLayout>
 
-				<!-- Информация о пользователе -->
-				<VerticalStackLayout Spacing="8" Padding="10,20,10,10"
-                                     BackgroundColor="#5B4D42">
-
-					<Label Text="Email:"
-                           FontAttributes="Bold"
-                           TextColor="White" />
-					<Label Text="{Binding Email}"
-                           TextColor="LightGray"
-                           FontSize="16" />
-
-					<Label Text="Birth Date:"
-                           FontAttributes="Bold"
-                           TextColor="White"
-                           Margin="0,10,0,0" />
-					<Label Text="{Binding BirthDate}"
-                           TextColor="LightGray"
-                           FontSize="16" />
-				</VerticalStackLayout>
-
-				<!-- Кнопка выхода -->
-				<Button Text="Logout"
-                        Command="{Binding LogoutCommand}"
-                        BackgroundColor="#FF6F61"
-                        TextColor="White"
-                        FontAttributes="Bold"
-                        CornerRadius="10"
-                        WidthRequest="200"
-                        HorizontalOptions="Center" />
-			</VerticalStackLayout>
-
-		</Frame>
-	</VerticalStackLayout>
+        <ActivityIndicator Grid.RowSpan="3" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HorizontalOptions="Center" VerticalOptions="Center" />
+    </Grid>
 </ContentPage>

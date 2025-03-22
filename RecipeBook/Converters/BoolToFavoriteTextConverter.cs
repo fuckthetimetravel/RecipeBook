@@ -4,24 +4,20 @@ using Microsoft.Maui.Controls;
 
 namespace RecipeBook.Converters
 {
-    public class InverseBooleanConverter : IValueConverter
+    public class BoolToFavoriteTextConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool boolValue)
+            if (value is bool isFavorite)
             {
-                return !boolValue;
+                return isFavorite ? "Remove from Favorites" : "Add to Favorites";
             }
-            return value;
+            return "Add to Favorites";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool boolValue)
-            {
-                return !boolValue;
-            }
-            return value;
+            throw new NotImplementedException();
         }
     }
 }

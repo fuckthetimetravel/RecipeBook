@@ -1,20 +1,33 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace RecipeBook.FirebaseConfig
 {
     public static class FirebaseConfig
     {
-        public static readonly string ProjectId = "recipebook-e2874";
-        public static readonly string ApiKey = "AIzaSyBRLxAAT7_j2cjY58LrclZ3z9bUo9OU8_c";
-        public static readonly string FirestoreBaseUrl = $"https://firestore.googleapis.com/v1/projects/{ProjectId}/databases/(default)/documents";
-        public static readonly string StorageBaseUrl = $"https://firebasestorage.googleapis.com/v0/b/{ProjectId}.appspot.com/o";
+        // Замените на ваши данные Firebase
+        public const string ApiKey = "AIzaSyB341R8lYwH-HLeks2T-8lCnqBMaP64q4k";
+        public const string AuthDomain = "recipebookproj-dc40a.firebaseapp.com";
+        public const string ProjectId = "recipebookproj-dc40a";
+        public const string DatabaseUrl = "https://recipebookproj-dc40a-default-rtdb.firebaseio.com/";
 
-        // Добавлен URL для Realtime Database
-        public static readonly string RealtimeDatabaseUrl = $"https://{ProjectId}-default-rtdb.europe-west1.firebasedatabase.app/";
+        // Базовые URL для REST API
+        public const string AuthBaseUrl = "https://identitytoolkit.googleapis.com/v1/";
 
-        public static HttpClient GetHttpClient()
-        {
-            return new HttpClient();
-        }
+        // Методы для формирования URL запросов
+        public static string GetSignUpUrl() => $"{AuthBaseUrl}accounts:signUp?key={ApiKey}";
+        public static string GetSignInUrl() => $"{AuthBaseUrl}accounts:signInWithPassword?key={ApiKey}";
+
+
+        // URL для Realtime 
+
+        public static string GetUserUrl(string userId) => $"{DatabaseUrl}users/{userId}.json";
+        public static string GetRecipesUrl() => $"{DatabaseUrl}recipes.json";
+        public static string GetRecipeUrl(string recipeId) => $"{DatabaseUrl}recipes/{recipeId}.json";
+        public static string GetUserRecipesUrl(string userId) => $"{DatabaseUrl}recipes.json?orderBy=\"authorId\"&equalTo=\"{userId}\"";
+        public static string GetUserFavoritesUrl(string userId) => $"{DatabaseUrl}users/{userId}/favoriteRecipes.json";
     }
 }

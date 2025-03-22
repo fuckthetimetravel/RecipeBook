@@ -1,37 +1,24 @@
 ﻿using Microsoft.Maui.Controls;
 using RecipeBook.Views;
-using Microsoft.Maui.Storage;
+using System;
 
-namespace RecipeBook;
-
-public partial class AppShell : Shell
+namespace RecipeBook
 {
-    public AppShell()
+    public partial class AppShell : Shell
     {
-        InitializeComponent();
-        //CheckAuthentication();
-
-        Routing.RegisterRoute("profile", typeof(ProfilePage));
-        Routing.RegisterRoute("login", typeof(LoginPage));
-        Routing.RegisterRoute("register", typeof(RegistrPage));
-        Routing.RegisterRoute("addRecipe", typeof(AddRecipePage));
-        Routing.RegisterRoute("search", typeof(SearchRecipesPage));
-
-
-
-    }
-
-    /// <summary>
-    /// Проверяем, вошел ли пользователь в систему
-    /// </summary>
-    private async void CheckAuthentication()
-    {
-        var token = await SecureStorage.GetAsync("auth_token");
-
-        if (string.IsNullOrEmpty(token))
+        public AppShell()
         {
-            await Shell.Current.GoToAsync("//login");
-        }
+            InitializeComponent();
 
+            // Register routes for navigation
+            Routing.RegisterRoute("login", typeof(LoginPage));
+            Routing.RegisterRoute("register", typeof(RegistrPage));
+            Routing.RegisterRoute("profile", typeof(ProfilePage));
+            Routing.RegisterRoute("addrecipe", typeof(AddRecipePage));
+            Routing.RegisterRoute("myrecipes", typeof(MyRecipesPage));
+            Routing.RegisterRoute("searchrecipes", typeof(SearchRecipesPage));
+            Routing.RegisterRoute("favoriterecipes", typeof(FavoriteRecipesPage));
+            Routing.RegisterRoute("recipedetails", typeof(RecipeDetailsPage));
+        }
     }
 }
