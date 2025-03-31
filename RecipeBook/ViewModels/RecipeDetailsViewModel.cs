@@ -24,6 +24,7 @@ namespace RecipeBook.ViewModels
             {
                 if (SetProperty(ref _recipeId, value) && !string.IsNullOrEmpty(value))
                 {
+                    // Load the recipe when the ID is set
                     LoadRecipeAsync(value).ConfigureAwait(false);
                 }
             }
@@ -56,8 +57,8 @@ namespace RecipeBook.ViewModels
             _recipeService = recipeService;
             _authService = authService;
 
-            EditRecipeCommand = new Command(async () => await ExecuteEditRecipeCommand());
-            DeleteRecipeCommand = new Command(async () => await ExecuteDeleteRecipeCommand());
+            EditRecipeCommand = new Command(async () => await ExecuteEditRecipeCommand(), () => IsOwner);
+            DeleteRecipeCommand = new Command(async () => await ExecuteDeleteRecipeCommand(), () => IsOwner);
             ToggleFavoriteCommand = new Command(async () => await ExecuteToggleFavoriteCommand());
         }
 
@@ -84,12 +85,18 @@ namespace RecipeBook.ViewModels
                     }
 
                     // Проверяем, является ли текущий пользователь автором рецепта
-                    IsOwner = _authService.IsAuthenticated && Recipe.AuthorId == _authService.CurrentUser?.Id;
+                    IsOwner = _authService.IsAuthenticated &&
+                              _authService.CurrentUser != null &&
+                              Recipe.AuthorId == _authService.CurrentUser.Id;
 
                     // Проверяем, добавлен ли рецепт в избранное
                     IsFavorite = _authService.IsAuthenticated &&
                                 _authService.CurrentUser?.FavoriteRecipes != null &&
                                 _authService.CurrentUser.FavoriteRecipes.Contains(recipeId);
+
+                    // Refresh command can execute status
+                    ((Command)EditRecipeCommand).ChangeCanExecute();
+                    ((Command)DeleteRecipeCommand).ChangeCanExecute();
                 }
                 catch (Exception ex)
                 {
@@ -101,12 +108,26 @@ namespace RecipeBook.ViewModels
 
         private async Task ExecuteEditRecipeCommand()
         {
+            if (!IsOwner)
+            {
+                await Shell.Current.DisplayAlert("Permission Denied",
+                    "You can only edit recipes that you created.", "OK");
+                return;
+            }
+
             // Переход на страницу редактирования рецепта
             await Shell.Current.GoToAsync($"editrecipe?id={Recipe.Id}");
         }
 
         private async Task ExecuteDeleteRecipeCommand()
         {
+            if (!IsOwner)
+            {
+                await Shell.Current.DisplayAlert("Permission Denied",
+                    "You can only delete recipes that you created.", "OK");
+                return;
+            }
+
             bool confirm = await Shell.Current.DisplayAlert("Confirm Delete",
                 "Are you sure you want to delete this recipe?", "Yes", "No");
 
@@ -114,8 +135,16 @@ namespace RecipeBook.ViewModels
             {
                 await ExecuteWithBusyIndicator(async () =>
                 {
-                    await _recipeService.DeleteRecipeAsync(Recipe.Id);
-                    await Shell.Current.GoToAsync("..");
+                    try
+                    {
+                        await _recipeService.DeleteRecipeAsync(Recipe.Id);
+                        await Shell.Current.GoToAsync("..");
+                    }
+                    catch (Exception ex)
+                    {
+                        await Shell.Current.DisplayAlert("Error",
+                            $"Failed to delete recipe: {ex.Message}", "OK");
+                    }
                 });
             }
         }
@@ -131,16 +160,24 @@ namespace RecipeBook.ViewModels
 
             await ExecuteWithBusyIndicator(async () =>
             {
-                if (IsFavorite)
+                try
                 {
-                    await _recipeService.RemoveFromFavoritesAsync(Recipe.Id);
-                }
-                else
-                {
-                    await _recipeService.AddToFavoritesAsync(Recipe.Id);
-                }
+                    if (IsFavorite)
+                    {
+                        await _recipeService.RemoveFromFavoritesAsync(Recipe.Id);
+                    }
+                    else
+                    {
+                        await _recipeService.AddToFavoritesAsync(Recipe.Id);
+                    }
 
-                IsFavorite = !IsFavorite;
+                    IsFavorite = !IsFavorite;
+                }
+                catch (Exception ex)
+                {
+                    await Shell.Current.DisplayAlert("Error",
+                        $"Failed to update favorites: {ex.Message}", "OK");
+                }
             });
         }
     }

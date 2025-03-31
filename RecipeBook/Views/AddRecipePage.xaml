@@ -5,7 +5,7 @@
              x:Class="RecipeBook.Views.AddRecipePage"
              x:Name="AddRecipePageView">
     <ContentPage.Resources>
-        <converters:Base64ToImageSourceConverter x:Key="Base64ToImageSourceConverter" />
+        <converters:Base64ToImageConverter x:Key="Base64ToImageConverter" />
         <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
     </ContentPage.Resources>
 
@@ -33,7 +33,7 @@
                             <Button Text="Take Photo" Command="{Binding TakePhotoCommand}" />
                         </HorizontalStackLayout>
 
-                        <Image Source="{Binding SelectedImageBase64, Converter={StaticResource Base64ToImageSourceConverter}}" 
+                        <Image Source="{Binding SelectedImageBase64, Converter={StaticResource Base64ToImageConverter}}" 
                                HeightRequest="200" Aspect="AspectFill" 
                                IsVisible="{Binding SelectedImageBase64, Converter={StaticResource StringNotEmptyConverter}}" />
                     </VerticalStackLayout>

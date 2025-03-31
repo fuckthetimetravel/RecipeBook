@@ -3,73 +3,97 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:RecipeBook.Converters"
              x:Class="RecipeBook.Views.RecipeDetailsPage"
-             x:Name="RecipeDetailsPageView">
-	<ContentPage.Resources>
-		<converters:Base64ToImageSourceConverter x:Key="Base64ToImageSourceConverter" />
-		<converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
-	</ContentPage.Resources>
+             Title="Recipe Details">
 
-	<ScrollView>
-		<Grid RowDefinitions="Auto,*,Auto" Padding="20">
-			<VerticalStackLayout Grid.Row="1" Spacing="20">
-				<!-- Recipe Header -->
-				<VerticalStackLayout Spacing="10">
-					<Label Text="{Binding Recipe.Title}" FontSize="24" HorizontalOptions="Center" FontAttributes="Bold" />
-					<Label Text="{Binding Recipe.Description}" HorizontalOptions="Center" />
-				</VerticalStackLayout>
+    <ContentPage.Resources>
+        <converters:Base64ToImageConverter x:Key="Base64ToImageConverter" />
+        <converters:StringToBoolConverter x:Key="StringToBoolConverter" />
+        <converters:BoolToFavoriteTextConverter x:Key="BoolToFavoriteTextConverter" />
+        <converters:BoolToFavoriteColorConverter x:Key="BoolToFavoriteColorConverter" />
+        <converters:IndexToStepNumberConverter x:Key="IndexToStepNumberConverter" />
+    </ContentPage.Resources>
 
-				<!-- Recipe Image -->
-				<Image Source="{Binding Recipe.ImageBase64, Converter={StaticResource Base64ToImageSourceConverter}}"
-                       HeightRequest="200" Aspect="AspectFill"
-                       IsVisible="{Binding Recipe.ImageBase64, Converter={StaticResource StringNotEmptyConverter}}" />
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+            <!-- Recipe Image -->
+            <Frame IsClippedToBounds="True" CornerRadius="10" Padding="0" HeightRequest="200" 
+                   IsVisible="{Binding Recipe.ImageBase64, Converter={StaticResource StringToBoolConverter}}">
+                <Image Aspect="AspectFill" 
+                       Source="{Binding Recipe.ImageBase64, Converter={StaticResource Base64ToImageConverter}}" />
+            </Frame>
 
-				<!-- Action Buttons -->
-				<HorizontalStackLayout HorizontalOptions="Center" Spacing="10" IsVisible="{Binding IsOwner}">
-					<Button Text="Edit Recipe" Command="{Binding EditRecipeCommand}" />
-					<Button Text="Delete Recipe" Command="{Binding DeleteRecipeCommand}" BackgroundColor="Red" />
-				</HorizontalStackLayout>
+            <!-- Recipe Title -->
+            <Label Text="{Binding Recipe.Title}" 
+                   FontSize="24" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center" />
 
-				<Button Text="{Binding IsFavorite, Converter={StaticResource BoolToFavoriteTextConverter}}"
+            <!-- Recipe Description -->
+            <Frame BorderColor="LightGray" Padding="10" CornerRadius="5">
+                <Label Text="{Binding Recipe.Description}" 
+                       FontSize="16" />
+            </Frame>
+
+            <!-- Ingredients Section -->
+            <Label Text="Ingredients" 
+                   FontSize="20" 
+                   FontAttributes="Bold" 
+                   Margin="0,10,0,0" />
+
+            <CollectionView ItemsSource="{Binding Recipe.Ingredients}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="5" ColumnDefinitions="*, Auto">
+                            <Label Text="{Binding Name}" Grid.Column="0" />
+                            <Label Text="{Binding Quantity}" Grid.Column="1" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Steps Section -->
+            <Label Text="Steps" 
+                   FontSize="20" 
+                   FontAttributes="Bold" 
+                   Margin="0,10,0,0" />
+
+            <CollectionView ItemsSource="{Binding Recipe.Steps}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="5" ColumnDefinitions="Auto, *">
+                            <Label Text="{Binding ., Converter={StaticResource IndexToStepNumberConverter}, ConverterParameter={Binding Source={RelativeSource AncestorType={x:Type CollectionView}}, Path=ItemsSource}}" 
+                                   Grid.Column="0" 
+                                   FontAttributes="Bold" />
+                            <Label Text="{Binding Text}" 
+                                   Grid.Column="1" 
+                                   Margin="5,0,0,0" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Action Buttons -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="10" Margin="0,20,0,0">
+                <!-- Favorite Button (always visible) -->
+                <Button Text="{Binding IsFavorite, Converter={StaticResource BoolToFavoriteTextConverter}}"
                         Command="{Binding ToggleFavoriteCommand}"
-                        HorizontalOptions="Center" />
+                        BackgroundColor="{Binding IsFavorite, Converter={StaticResource BoolToFavoriteColorConverter}}"
+                        WidthRequest="120" />
 
-				<!-- Ingredients Section -->
-				<Frame Padding="15">
-					<VerticalStackLayout Spacing="10">
-						<Label Text="Ingredients" FontSize="18" FontAttributes="Bold" />
+                <!-- Edit Button (visible only for owner) -->
+                <Button Text="Edit" 
+                        Command="{Binding EditRecipeCommand}"
+                        IsVisible="{Binding IsOwner}"
+                        BackgroundColor="#5B8C5A"
+                        WidthRequest="120" />
 
-						<CollectionView ItemsSource="{Binding Recipe.Ingredients}">
-							<CollectionView.ItemTemplate>
-								<DataTemplate>
-									<Grid ColumnDefinitions="*, Auto" Padding="0,5">
-										<Label Grid.Column="0" Text="{Binding Name}" />
-										<Label Grid.Column="1" Text="{Binding Quantity}" />
-									</Grid>
-								</DataTemplate>
-							</CollectionView.ItemTemplate>
-						</CollectionView>
-					</VerticalStackLayout>
-				</Frame>
-
-				<!-- Steps Section -->
-				<Frame Padding="15">
-					<VerticalStackLayout Spacing="10">
-						<Label Text="Preparation Steps" FontSize="18" FontAttributes="Bold" />
-
-						<CollectionView ItemsSource="{Binding Recipe.Steps}">
-							<CollectionView.ItemTemplate>
-								<DataTemplate>
-									<Grid Padding="0,10">
-										<Label Text="{Binding Text}" />
-									</Grid>
-								</DataTemplate>
-							</CollectionView.ItemTemplate>
-						</CollectionView>
-					</VerticalStackLayout>
-				</Frame>
-			</VerticalStackLayout>
-
-			<ActivityIndicator Grid.RowSpan="3" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HorizontalOptions="Center" VerticalOptions="Center" />
-		</Grid>
-	</ScrollView>
+                <!-- Delete Button (visible only for owner) -->
+                <Button Text="Delete" 
+                        Command="{Binding DeleteRecipeCommand}"
+                        IsVisible="{Binding IsOwner}"
+                        BackgroundColor="#C75450"
+                        WidthRequest="120" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

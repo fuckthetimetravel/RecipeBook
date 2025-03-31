@@ -19,6 +19,7 @@ namespace RecipeBook
             Routing.RegisterRoute("searchrecipes", typeof(SearchRecipesPage));
             Routing.RegisterRoute("favoriterecipes", typeof(FavoriteRecipesPage));
             Routing.RegisterRoute("recipedetails", typeof(RecipeDetailsPage));
+            Routing.RegisterRoute("editrecipe", typeof(EditRecipePage));
             Routing.RegisterRoute(nameof(RecipeDetailsPage), typeof(RecipeDetailsPage));
         }
     }
