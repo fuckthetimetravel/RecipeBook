@@ -21,43 +21,35 @@ namespace RecipeBook.Services
         public AuthService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            // Try to load saved authentication data when service is created
             LoadSavedAuthDataAsync().ConfigureAwait(false);
         }
 
-        public AuthService()
-        {
-        }
+        public AuthService() { }
 
         public async Task LoadSavedAuthDataAsync()
         {
             try
             {
-                // Get saved auth token
                 AuthToken = await SecureStorage.GetAsync(AUTH_TOKEN_KEY);
 
                 if (!string.IsNullOrEmpty(AuthToken))
                 {
-                    // Get saved user data
                     string userData = await SecureStorage.GetAsync(USER_DATA_KEY);
                     if (!string.IsNullOrEmpty(userData))
                     {
                         CurrentUser = JsonSerializer.Deserialize<User>(userData);
                     }
 
-                    // Validate the token by making a request
-                    if (CurrentUser != null)
+                    try
                     {
-                        // Optional: Validate token with a lightweight API call
-                        // If validation fails, clear the saved data
-                        try
+                        if (CurrentUser != null)
                         {
-                            await GetUserAsync(CurrentUser.Id);
+                            await GetUserAsync(CurrentUser.Id); // Проверка валидности токена
                         }
-                        catch
-                        {
-                            await ClearSavedAuthDataAsync();
-                        }
+                    }
+                    catch
+                    {
+                        await ClearSavedAuthDataAsync();
                     }
                 }
             }
@@ -75,7 +67,7 @@ namespace RecipeBook.Services
                 if (!string.IsNullOrEmpty(AuthToken) && CurrentUser != null)
                 {
                     await SecureStorage.SetAsync(AUTH_TOKEN_KEY, AuthToken);
-                    string userData = JsonSerializer.Serialize(CurrentUser);
+                    var userData = JsonSerializer.Serialize(CurrentUser);
                     await SecureStorage.SetAsync(USER_DATA_KEY, userData);
                 }
             }
@@ -111,39 +103,31 @@ namespace RecipeBook.Services
                 returnSecureToken = true
             };
 
-            var json = JsonSerializer.Serialize(requestData);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
+            var content = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(url, content);
             var responseString = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
-            {
                 throw new Exception($"Failed to sign in: {responseString}");
-            }
 
             var authResult = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
 
-            if (authResult.TryGetValue("idToken", out var idToken))
+            if (authResult.TryGetValue("idToken", out var idToken) &&
+                authResult.TryGetValue("localId", out var localId))
             {
                 AuthToken = idToken.GetString();
+                var userId = localId.GetString();
 
-                if (authResult.TryGetValue("localId", out var localId))
-                {
-                    var userId = localId.GetString();
-                    CurrentUser = await GetUserAsync(userId);
+                CurrentUser = await GetUserAsync(userId);
+                await SaveAuthDataAsync();
 
-                    // Save authentication data for persistent login
-                    await SaveAuthDataAsync();
-
-                    return CurrentUser;
-                }
+                return CurrentUser;
             }
 
             throw new Exception("Failed to parse authentication response");
         }
 
-        public async Task<User> SignUpAsync(string email, string password, string firstName, string lastName)
+        public async Task<User> SignUpAsync(string email, string password, string firstName, string lastName, string profileImageBase64)
         {
             var url = FirebaseConfig.FirebaseConfig.GetSignUpUrl();
 
@@ -154,16 +138,12 @@ namespace RecipeBook.Services
                 returnSecureToken = true
             };
 
-            var json = JsonSerializer.Serialize(requestData);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
+            var content = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(url, content);
             var responseString = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
-            {
                 throw new Exception($"Failed to sign up: {responseString}");
-            }
 
             var authResult = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
 
@@ -173,20 +153,18 @@ namespace RecipeBook.Services
                 AuthToken = idToken.GetString();
                 var userId = localId.GetString();
 
-                // Create user profile
                 var user = new User
                 {
                     Id = userId,
                     Email = email,
-                    FirstName = firstName,
-                    LastName = lastName,
+                    FirstName = firstName ?? string.Empty,
+                    LastName = lastName ?? string.Empty,
+                    ProfileImageBase64 = profileImageBase64 ?? string.Empty,
                     FavoriteRecipes = new List<string>()
                 };
 
                 await CreateUserAsync(user);
                 CurrentUser = user;
-
-                // Save authentication data for persistent login
                 await SaveAuthDataAsync();
 
                 return user;
@@ -199,8 +177,6 @@ namespace RecipeBook.Services
         {
             AuthToken = null;
             CurrentUser = null;
-
-            // Clear saved authentication data
             await ClearSavedAuthDataAsync();
         }
 
@@ -215,9 +191,7 @@ namespace RecipeBook.Services
             var responseString = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
-            {
                 throw new Exception($"Failed to create user: {responseString}");
-            }
         }
 
         public async Task<User> GetUserAsync(string userId)
@@ -228,9 +202,7 @@ namespace RecipeBook.Services
             var responseString = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
-            {
                 throw new Exception($"Failed to get user: {responseString}");
-            }
 
             return JsonSerializer.Deserialize<User>(responseString);
         }
@@ -246,14 +218,9 @@ namespace RecipeBook.Services
             var responseString = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
-            {
                 throw new Exception($"Failed to update user: {responseString}");
-            }
 
-            // Update current user
             CurrentUser = user;
-
-            // Update saved user data
             await SaveAuthDataAsync();
         }
     }

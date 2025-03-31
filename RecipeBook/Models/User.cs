@@ -20,6 +20,10 @@ namespace RecipeBook.Models
         [JsonPropertyName("favoriteRecipes")]
         public List<string> FavoriteRecipes { get; set; }
 
+        [JsonPropertyName("profileImageBase64")]
+        public string ProfileImageBase64 { get; set; }
+
+
         // Helper property to get full name
         [JsonIgnore]
         public string FullName => $"{FirstName} {LastName}".Trim();

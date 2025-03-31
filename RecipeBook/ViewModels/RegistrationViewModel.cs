@@ -9,13 +9,18 @@ namespace RecipeBook.ViewModels
     public class RegistrationViewModel : BaseViewModel
     {
         private readonly AuthService _authService;
+        private readonly RecipeService _recipeService;
+
+        public FileResult SelectedProfileImage { get; set; }
 
         private string _email;
         private string _password;
         private string _confirmPassword;
         private string _firstName;
         private string _lastName;
+        private string _profileImageBase64;
         private string _errorMessage;
+
 
         public string Email
         {
@@ -47,6 +52,13 @@ namespace RecipeBook.ViewModels
             set => SetProperty(ref _lastName, value);
         }
 
+        public string ProfileImageBase64
+        {
+            get => _profileImageBase64;
+            set => SetProperty(ref _profileImageBase64, value);
+        }
+
+
         public string ErrorMessage
         {
             get => _errorMessage;
@@ -54,12 +66,56 @@ namespace RecipeBook.ViewModels
         }
 
         public ICommand SignUpCommand { get; }
-
-        public RegistrationViewModel(AuthService authService)
+        
+        public RegistrationViewModel(AuthService authService, RecipeService recipeService)
         {
             _authService = authService;
+            _recipeService = recipeService;
 
             SignUpCommand = new Command(async () => await ExecuteSignUpCommand());
+        }
+
+
+        public async Task PickProfileImageAsync()
+        {
+            try
+            {
+                var result = await MediaPicker.PickPhotoAsync(new MediaPickerOptions
+                {
+                    Title = "Select a profile photo"
+                });
+
+                if (result != null)
+                {
+                    SelectedProfileImage = result;
+                    ProfileImageBase64 = await _recipeService.ConvertImageToBase64Async(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error picking image: {ex.Message}";
+            }
+        }
+
+        public async Task TakeProfilePhotoAsync()
+        {
+            try
+            {
+                var result = await MediaPicker.CapturePhotoAsync(new MediaPickerOptions
+                {
+                    Title = "Take a profile photo"
+                });
+
+                if (result != null)
+                {
+                    SelectedProfileImage = result;
+                    ProfileImageBase64 = await _recipeService.ConvertImageToBase64Async(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error taking photo: {ex.Message}";
+            }
         }
 
         private async Task ExecuteSignUpCommand()
@@ -88,10 +144,17 @@ namespace RecipeBook.ViewModels
                 try
                 {
                     // Sign up user
-                    await _authService.SignUpAsync(Email, Password, FirstName ?? string.Empty, LastName ?? string.Empty);
+                    await _authService.SignUpAsync(
+                        Email,
+                        Password,
+                        FirstName ?? string.Empty,
+                        LastName ?? string.Empty,
+                        ProfileImageBase64
+                    );
 
                     // Navigate to main page
-                    await Shell.Current.GoToAsync("//profile");
+                    Application.Current.MainPage = new AppShell();
+
                 }
                 catch (Exception ex)
                 {

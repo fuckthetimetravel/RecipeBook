@@ -10,5 +10,18 @@ namespace RecipeBook.Views
             InitializeComponent();
             BindingContext = viewModel;
         }
+
+        private async void OnPickProfileImageClicked(object sender, EventArgs e)
+        {
+            if (BindingContext is RegistrationViewModel vm)
+                await vm.PickProfileImageAsync();
+        }
+
+        private async void OnTakeProfilePhotoClicked(object sender, EventArgs e)
+        {
+            if (BindingContext is RegistrationViewModel vm)
+                await vm.TakeProfilePhotoAsync();
+        }
+
     }
 }
