@@ -3,62 +3,98 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:RecipeBook.Converters"
              x:Class="RecipeBook.Views.RegistrPage"
-             Title="Registration">
+             Title="Registration"
+             BackgroundColor="{StaticResource BackgroundColor}">
 
     <ContentPage.Resources>
         <converters:StringToBoolConverter x:Key="StringToBoolConverter" />
     </ContentPage.Resources>
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="15" VerticalOptions="Center">
-            <Image Source="app_icon.png" 
-                   HeightRequest="100" 
-                   HorizontalOptions="Center" 
-                   Margin="0,0,0,20" />
+        <VerticalStackLayout Padding="20"
+                             Spacing="18"
+                             VerticalOptions="Center">
 
-            <Label Text="Create Account" 
-                   FontSize="24" 
-                   FontAttributes="Bold" 
-                   HorizontalOptions="Center" 
-                   Margin="0,0,0,20" />
 
-            <!-- First Name -->
-            <Label Text="First Name" FontAttributes="Bold" />
-            <Entry Text="{Binding FirstName}" 
-                   Placeholder="Enter your first name" />
+            <Label Text="Create Account"
+                   FontSize="26"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource PrimaryAccent}"
+                   HorizontalOptions="Center" />
 
-            <!-- Last Name -->
-            <Label Text="Last Name" FontAttributes="Bold" />
-            <Entry Text="{Binding LastName}" 
-                   Placeholder="Enter your last name" />
+            <Frame Padding="15"
+                   Margin="0,10,0,0"
+                   BackgroundColor="{StaticResource CardBackground}"
+                   CornerRadius="16"
+                   HasShadow="True">
 
-            <!-- Email -->
-            <Label Text="Email" FontAttributes="Bold" />
-            <Entry Text="{Binding Email}" 
-                   Placeholder="Enter your email" 
-                   Keyboard="Email" />
+                <StackLayout Padding="15"
+                             Spacing="18">
+                    <!-- First Name -->
+                    <Label Text="First Name"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource TextColor}" />
+                    <Entry Text="{Binding FirstName}"
+                   Placeholder="Enter your first name"
+                   TextColor="{StaticResource TextColor}"
+                   HeightRequest="45" />
 
-            <!-- Password -->
-            <Label Text="Password" FontAttributes="Bold" />
-            <Entry Text="{Binding Password}" 
-                   Placeholder="Enter your password" 
-                   IsPassword="True" />
+                    <!-- Last Name -->
+                    <Label Text="Last Name"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource TextColor}" />
+                    <Entry Text="{Binding LastName}"
+                   Placeholder="Enter your last name"
+                   TextColor="{StaticResource TextColor}"
+                   HeightRequest="45" />
 
-            <!-- Confirm Password -->
-            <Label Text="Confirm Password" FontAttributes="Bold" />
-            <Entry Text="{Binding ConfirmPassword}" 
-                   Placeholder="Confirm your password" 
-                   IsPassword="True" />
+                    <!-- Email -->
+                    <Label Text="Email"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource TextColor}" />
+                    <Entry Text="{Binding Email}"
+                   Placeholder="Enter your email"
+                   Keyboard="Email"
+                   TextColor="{StaticResource TextColor}"
+                   HeightRequest="45" />
 
-            <!-- Error Message -->
-            <Label Text="{Binding ErrorMessage}" 
-                   TextColor="Red" 
+                    <!-- Password -->
+                    <Label Text="Password"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource TextColor}" />
+                    <Entry Text="{Binding Password}"
+                   Placeholder="Enter your password"
+                   IsPassword="True"
+                   TextColor="{StaticResource TextColor}"
+                   HeightRequest="45" />
+
+                    <!-- Confirm Password -->
+                    <Label Text="Confirm Password"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource TextColor}" />
+                    <Entry Text="{Binding ConfirmPassword}"
+                   Placeholder="Confirm your password"
+                   IsPassword="True"
+                   TextColor="{StaticResource TextColor}"
+                   HeightRequest="45" />
+
+                    <!-- Error -->
+                    <Label Text="{Binding ErrorMessage}"
+                   TextColor="Red"
+                   FontSize="14"
                    IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}" />
+                </StackLayout>
 
-            <!-- Sign Up Button -->
-            <Button Text="Sign Up" 
-                    Command="{Binding SignUpCommand}" 
-                    BackgroundColor="#5B8C5A" 
+            </Frame>
+
+
+            <!-- Sign Up -->
+            <Button Text="Sign Up"
+                    Command="{Binding SignUpCommand}"
+                    BackgroundColor="{StaticResource PrimaryAccent}"
+                    TextColor="White"
+                    CornerRadius="10"
+                    HeightRequest="50"
                     Margin="0,10,0,0" />
         </VerticalStackLayout>
     </ScrollView>

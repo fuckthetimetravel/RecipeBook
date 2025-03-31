@@ -3,39 +3,95 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:RecipeBook.Converters"
              x:Class="RecipeBook.Views.FavoriteRecipesPage"
-             Title="Favorite Recipes">
-	<ContentPage.Resources>
-		<converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
-	</ContentPage.Resources>
+             Title="Favorite Recipes"
+             BackgroundColor="{StaticResource BackgroundColor}">
 
-	<Grid RowDefinitions="Auto,*,Auto" Padding="20">
-		<Button Grid.Row="0" Text="Refresh" Command="{Binding LoadFavoriteRecipesCommand}" HorizontalOptions="End" />
+    <ContentPage.Resources>
+        <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
+    </ContentPage.Resources>
 
-		<CollectionView Grid.Row="1" ItemsSource="{Binding Recipes}" Margin="0,20,0,0"
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+
+        <!-- Кнопка обновления -->
+        <Button Grid.Row="0"
+                Text="Refresh"
+                Command="{Binding LoadFavoriteRecipesCommand}"
+                BackgroundColor="{StaticResource SecondaryAccent}"
+                TextColor="White"
+                CornerRadius="10"
+                HorizontalOptions="End"
+                HeightRequest="40" />
+
+        <!-- Список избранных рецептов -->
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Recipes}"
+                        Margin="0,20,0,0"
                         EmptyView="No favorite recipes found. Add some recipes to your favorites!">
-			<CollectionView.ItemTemplate>
-				<DataTemplate>
-					<Frame Margin="0,0,0,10" Padding="10">
-						<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto,Auto">
-							<Label Grid.Row="0" Grid.Column="0" Text="{Binding Title}" FontAttributes="Bold" FontSize="16" />
-							<Label Grid.Row="1" Grid.Column="0" Text="{Binding Description}" LineBreakMode="TailTruncation" MaxLines="2" />
-							<Button Grid.RowSpan="2" Grid.Column="1" Text="View"
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Margin="0,0,0,10"
+                           Padding="15"
+                           CornerRadius="16"
+                           BackgroundColor="{StaticResource CardBackground}"
+                           HasShadow="True">
+
+                        <Grid RowDefinitions="Auto,Auto"
+                              ColumnDefinitions="*,Auto,Auto"
+                              ColumnSpacing="10">
+
+                            <Label Grid.Row="0"
+                                   Grid.Column="0"
+                                   Text="{Binding Title}"
+                                   FontAttributes="Bold"
+                                   FontSize="16"
+                                   TextColor="{StaticResource TextColor}" />
+
+                            <Label Grid.Row="1"
+                                   Grid.Column="0"
+                                   Text="{Binding Description}"
+                                   LineBreakMode="TailTruncation"
+                                   MaxLines="2"
+                                   TextColor="{StaticResource TextColor}" />
+
+                            <Button Grid.RowSpan="2"
+                                    Grid.Column="1"
+                                    Text="View"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RecipeTappedCommand}"
                                     CommandParameter="{Binding .}"
-                                    VerticalOptions="Center" />
-							<Button Grid.RowSpan="2" Grid.Column="2" Text="Remove"
+                                    BackgroundColor="{StaticResource SecondaryAccent}"
+                                    TextColor="White"
+                                    CornerRadius="10"
+                                    VerticalOptions="Center"
+                                    WidthRequest="80" />
+
+                            <Button Grid.RowSpan="2"
+                                    Grid.Column="2"
+                                    Text="Remove"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveFromFavoritesCommand}"
                                     CommandParameter="{Binding .}"
+                                    BackgroundColor="{StaticResource ButtonColor}"
+                                    TextColor="White"
+                                    CornerRadius="10"
                                     VerticalOptions="Center"
-                                    BackgroundColor="Red" />
-						</Grid>
-					</Frame>
-				</DataTemplate>
-			</CollectionView.ItemTemplate>
-		</CollectionView>
+                                    WidthRequest="80" />
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
-		<Label Grid.Row="2" Text="{Binding ErrorMessage}" TextColor="Red" IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+        <!-- Ошибка -->
+        <Label Grid.Row="2"
+               Text="{Binding ErrorMessage}"
+               TextColor="Red"
+               IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
 
-		<ActivityIndicator Grid.RowSpan="3" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HorizontalOptions="Center" VerticalOptions="Center" />
-	</Grid>
+        <!-- Индикатор загрузки -->
+        <ActivityIndicator Grid.RowSpan="3"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+    </Grid>
 </ContentPage>

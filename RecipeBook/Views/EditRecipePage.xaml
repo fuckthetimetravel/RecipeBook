@@ -3,121 +3,188 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:RecipeBook.Converters"
              x:Class="RecipeBook.Views.EditRecipePage"
-             Title="Edit Recipe">
+             Title="Edit Recipe"
+             BackgroundColor="{StaticResource BackgroundColor}">
 
-    <ContentPage.Resources>
-        <converters:Base64ToImageConverter x:Key="Base64ToImageConverter" />
-        <converters:StringToBoolConverter x:Key="StringToBoolConverter" />
-    </ContentPage.Resources>
+	<ContentPage.Resources>
+		<converters:Base64ToImageConverter x:Key="Base64ToImageConverter" />
+		<converters:StringToBoolConverter x:Key="StringToBoolConverter" />
+	</ContentPage.Resources>
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="15">
-            <!-- Recipe Image -->
-            <Frame IsClippedToBounds="True" CornerRadius="10" Padding="0" HeightRequest="200" 
+	<ScrollView>
+		<VerticalStackLayout Padding="20" Spacing="20">
+
+			<!-- Фото -->
+			<Frame IsClippedToBounds="True"
+                   CornerRadius="16"
+                   Padding="0"
+                   HeightRequest="200"
+                   BackgroundColor="{StaticResource CardBackground}"
+                   HasShadow="True"
                    IsVisible="{Binding SelectedImageBase64, Converter={StaticResource StringToBoolConverter}}">
-                <Image Aspect="AspectFill" 
+				<Image Aspect="AspectFill"
                        Source="{Binding SelectedImageBase64, Converter={StaticResource Base64ToImageConverter}}" />
-            </Frame>
+			</Frame>
 
-            <Button Text="Change Image" Command="{Binding PickImageCommand}" />
+			<Button Text="Change Image"
+                    Command="{Binding PickImageCommand}"
+                    BackgroundColor="{StaticResource SecondaryAccent}"
+                    TextColor="White"
+                    CornerRadius="10"
+                    HeightRequest="45" />
 
-            <!-- Recipe Title -->
-            <Label Text="Title" FontAttributes="Bold" />
-            <Entry Text="{Binding Title}" Placeholder="Recipe title" />
+			<!-- Название -->
+			<Label Text="Title" FontAttributes="Bold" TextColor="{StaticResource TextColor}" />
+			<Entry Text="{Binding Title}"
+                   Placeholder="Recipe title"
+                   TextColor="{StaticResource TextColor}" />
 
-            <!-- Recipe Description -->
-            <Label Text="Description" FontAttributes="Bold" />
-            <Editor Text="{Binding Description}" 
-                    Placeholder="Recipe description" 
-                    HeightRequest="100" />
+			<!-- Описание -->
+			<Label Text="Description" FontAttributes="Bold" TextColor="{StaticResource TextColor}" />
+			<Editor Text="{Binding Description}"
+                    Placeholder="Recipe description"
+                    HeightRequest="100"
+                    TextColor="{StaticResource TextColor}" />
 
-            <!-- Ingredients Section -->
-            <Label Text="Ingredients" FontAttributes="Bold" Margin="0,10,0,0" />
+			<!-- Ингредиенты -->
+			<Label Text="Ingredients"
+                   FontAttributes="Bold"
+                   Margin="0,10,0,0"
+                   TextColor="{StaticResource TextColor}" />
 
-            <CollectionView ItemsSource="{Binding Ingredients}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Padding="5" ColumnDefinitions="*, Auto, Auto">
-                            <Label Text="{Binding Name}" Grid.Column="0" VerticalOptions="Center" />
-                            <Label Text="{Binding Quantity}" Grid.Column="1" VerticalOptions="Center" />
-                            <Button Text="✕" 
-                                    Grid.Column="2" 
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveIngredientCommand}" 
-                                    CommandParameter="{Binding .}" 
-                                    BackgroundColor="#C75450"
+			<CollectionView ItemsSource="{Binding Ingredients}">
+				<CollectionView.ItemTemplate>
+					<DataTemplate>
+						<Grid Padding="5" ColumnDefinitions="*, Auto, Auto">
+							<Label Text="{Binding Name}"
+                                   Grid.Column="0"
+                                   VerticalOptions="Center"
+                                   TextColor="{StaticResource TextColor}" />
+							<Label Text="{Binding Quantity}"
+                                   Grid.Column="1"
+                                   VerticalOptions="Center"
+                                   TextColor="{StaticResource TextColor}" />
+							
+							<Button Text="✕"
+                                    Grid.Column="3"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveIngredientCommand}"
+                                    CommandParameter="{Binding .}"
+                                    BackgroundColor="{StaticResource ButtonColor}"
+                                    TextColor="White"
                                     WidthRequest="40"
                                     HeightRequest="40"
-                                    Padding="0" />
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                                    CornerRadius="20"
+                                    Padding="0" 
+									Margin="15,0,0,0"/>
+						</Grid>
+					</DataTemplate>
+				</CollectionView.ItemTemplate>
+			</CollectionView>
 
-            <!-- Add Ingredient -->
-            <Grid ColumnDefinitions="*, Auto, Auto">
-                <Entry Placeholder="Ingredient name" Text="{Binding NewIngredientName}" Grid.Column="0" />
-                <Entry Placeholder="Quantity" Text="{Binding NewIngredientQuantity}" Grid.Column="1" WidthRequest="100" />
-                <Button Text="+" 
-                        Grid.Column="2" 
-                        Command="{Binding AddIngredientCommand}" 
-                        BackgroundColor="#5B8C5A"
+			<!-- Добавление ингредиента -->
+			<Grid ColumnDefinitions="*, Auto, Auto">
+				<Entry Placeholder="Ingredient name"
+                       Grid.Column="0" 
+                       Text="{Binding NewIngredientName}"
+                       HeightRequest="40"
+                       TextColor="{StaticResource TextColor}" />
+				<Entry Placeholder="Quantity"
+                       Grid.Column="1"
+                       Text="{Binding NewIngredientQuantity}"
+                       WidthRequest="100"
+                       HeightRequest="40"
+                       Margin="10,0,0,0"
+                       TextColor="{StaticResource TextColor}" />
+				<Button Text="+"
+						Grid.Column="2"	
+                        Command="{Binding AddIngredientCommand}"
+                        BackgroundColor="{StaticResource SecondaryAccent}"
+                        TextColor="White"
                         WidthRequest="40"
                         HeightRequest="40"
-                        Padding="0" />
-            </Grid>
+                        CornerRadius="20"
+                        Padding="0"
+                        Margin="10,0,0,0" />
+			</Grid>
 
-            <!-- Steps Section -->
-            <Label Text="Steps" FontAttributes="Bold" Margin="0,10,0,0" />
+			<!-- Шаги -->
+			<Label Text="Steps"
+                   FontAttributes="Bold"
+                   Margin="0,10,0,0"
+                   TextColor="{StaticResource TextColor}" />
 
-            <!-- Using a ListView instead of CollectionView for better index support -->
-            <ListView ItemsSource="{Binding Steps}" 
-                      HasUnevenRows="True" 
+			<ListView ItemsSource="{Binding Steps}"
+                      HasUnevenRows="True"
                       SeparatorVisibility="None"
                       SelectionMode="None">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <Grid Padding="5" ColumnDefinitions="Auto, *, Auto">
-                                <Label Text="{Binding Text}" 
-                                       Grid.Column="1" 
-                                       Margin="5,0,0,0"
-                                       VerticalOptions="Center" />
-                                <Button Text="✕" 
-                                        Grid.Column="2" 
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveStepCommand}" 
-                                        CommandParameter="{Binding .}" 
-                                        BackgroundColor="#C75450"
-                                        WidthRequest="40"
-                                        HeightRequest="40"
-                                        Padding="0" />
-                            </Grid>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+				<ListView.ItemTemplate>
+					<DataTemplate>
+						<ViewCell>
+							<Frame CornerRadius="12"
+                                   BackgroundColor="{StaticResource CardBackground}"
+                                   Padding="10"
+                                   Margin="0,0,0,10"
+                                   HasShadow="False">
+								<Grid ColumnDefinitions="Auto, *, Auto">
+									<Label Text="•"
+                                           Grid.Column="0"
+                                           FontSize="18"
+                                           VerticalOptions="Center"
+                                           TextColor="{StaticResource PrimaryAccent}" />
+									<Label Text="{Binding Text}"
+                                           Grid.Column="1"
+                                           Margin="5,0,0,0"
+                                           TextColor="{StaticResource TextColor}"
+                                           VerticalOptions="Center" />
+									<Button Text="✕"
+                                            Grid.Column="2"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveStepCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="{StaticResource ButtonColor}"
+                                            TextColor="White"
+                                            WidthRequest="40"
+                                            HeightRequest="40"
+                                            CornerRadius="20"
+                                            Padding="0" />
+								</Grid>
+							</Frame>
+						</ViewCell>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
 
-            <!-- Add Step -->
-            <Grid ColumnDefinitions="*, Auto">
-                <Entry Placeholder="Step description" Text="{Binding NewStepText}" Grid.Column="0" />
-                <Button Text="+" 
-                        Grid.Column="1" 
-                        Command="{Binding AddStepCommand}" 
-                        BackgroundColor="#5B8C5A"
+			<!-- Добавление шага -->
+			<Grid ColumnDefinitions="*, Auto">
+				<Entry Placeholder="Step description"
+						Grid.Column="0"
+                       Text="{Binding NewStepText}"
+                       HeightRequest="40"
+                       TextColor="{StaticResource TextColor}" />
+				<Button Text="+"
+						Grid.Column="1"
+                        Command="{Binding AddStepCommand}"
+                        BackgroundColor="{StaticResource SecondaryAccent}"
+                        TextColor="White"
                         WidthRequest="40"
                         HeightRequest="40"
-                        Padding="0" />
-            </Grid>
+                        CornerRadius="20"
+                        Padding="0"
+                        Margin="10,0,0,0" />
+			</Grid>
 
-            <!-- Save Button -->
-            <Button Text="Save Changes" 
-                    Command="{Binding SaveRecipeCommand}" 
-                    BackgroundColor="#5B8C5A"
+			<!-- Сохранить -->
+			<Button Text="Save Changes"
+                    Command="{Binding SaveRecipeCommand}"
+                    BackgroundColor="{StaticResource PrimaryAccent}"
+                    TextColor="White"
+                    CornerRadius="10"
+                    HeightRequest="50"
                     Margin="0,20,0,0" />
 
-            <!-- Error Message -->
-            <Label Text="{Binding ErrorMessage}" 
-                   TextColor="Red" 
+			<!-- Ошибка -->
+			<Label Text="{Binding ErrorMessage}"
+                   TextColor="Red"
                    IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}" />
-        </VerticalStackLayout>
-    </ScrollView>
+		</VerticalStackLayout>
+	</ScrollView>
 </ContentPage>

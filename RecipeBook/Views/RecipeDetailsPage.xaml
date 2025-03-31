@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:RecipeBook.Converters"
              x:Class="RecipeBook.Views.RecipeDetailsPage"
-             Title="Recipe Details">
+             Title="Recipe Details"
+             BackgroundColor="{StaticResource BackgroundColor}">
 
     <ContentPage.Resources>
         <converters:Base64ToImageConverter x:Key="Base64ToImageConverter" />
@@ -14,88 +15,121 @@
 
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="15">
-            <!-- Recipe Image -->
-            <Frame IsClippedToBounds="True" CornerRadius="10" Padding="0" HeightRequest="200" 
+
+            <!-- Изображение рецепта -->
+            <Frame IsClippedToBounds="True"
+                   CornerRadius="20"
+                   Padding="0"
+                   HeightRequest="200"
+                   BackgroundColor="{StaticResource CardBackground}"
+                   HasShadow="True"
                    IsVisible="{Binding Recipe.ImageBase64, Converter={StaticResource StringToBoolConverter}}">
-                <Image Aspect="AspectFill" 
+                <Image Aspect="AspectFill"
                        Source="{Binding Recipe.ImageBase64, Converter={StaticResource Base64ToImageConverter}}" />
             </Frame>
 
-            <!-- Recipe Title -->
-            <Label Text="{Binding Recipe.Title}" 
-                   FontSize="24" 
-                   FontAttributes="Bold" 
+            <!-- Заголовок -->
+            <Label Text="{Binding Recipe.Title}"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource PrimaryAccent}"
                    HorizontalOptions="Center" />
 
-            <!-- Recipe Description -->
-            <Frame BorderColor="LightGray" Padding="10" CornerRadius="5">
-                <Label Text="{Binding Recipe.Description}" 
-                       FontSize="16" />
+            <!-- Описание -->
+            <Frame BackgroundColor="{StaticResource CardBackground}"
+                   CornerRadius="16"
+                   Padding="15"
+                   HasShadow="True">
+                <Label Text="{Binding Recipe.Description}"
+                       FontSize="16"
+                       TextColor="{StaticResource TextColor}" />
             </Frame>
 
-            <!-- Ingredients Section -->
-            <Label Text="Ingredients" 
-                   FontSize="20" 
-                   FontAttributes="Bold" 
+            <!-- Ингредиенты -->
+            <Label Text="Ingredients"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource SecondaryAccent}"
                    Margin="0,10,0,0" />
 
             <CollectionView ItemsSource="{Binding Recipe.Ingredients}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Grid Padding="5" ColumnDefinitions="*, Auto">
-                            <Label Text="{Binding Name}" Grid.Column="0" />
-                            <Label Text="{Binding Quantity}" Grid.Column="1" />
+                        <Grid Padding="5"
+                              ColumnDefinitions="*, Auto">
+                            <Label Text="{Binding Name}" Grid.Column="0"
+                                   TextColor="{StaticResource TextColor}" />
+                            <Label Text="{Binding Quantity}" Grid.Column="1"
+                                   TextColor="{StaticResource TextColor}" />
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <!-- Steps Section -->
-            <Label Text="Steps" 
-                   FontSize="20" 
-                   FontAttributes="Bold" 
+            <!-- Шаги -->
+            <Label Text="Steps"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource SecondaryAccent}"
                    Margin="0,10,0,0" />
 
-            <!-- Using a ListView instead of CollectionView for better index support -->
-            <ListView ItemsSource="{Binding Recipe.Steps}" 
-                      HasUnevenRows="True" 
+            <ListView ItemsSource="{Binding Recipe.Steps}"
+                      HasUnevenRows="True"
                       SeparatorVisibility="None"
                       SelectionMode="None">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
-                            <Grid Padding="5" ColumnDefinitions="Auto, *">
-                                <Label Text="{Binding Text}" 
-                                       Grid.Column="1" 
-                                       Margin="5,0,0,0" />
-                            </Grid>
+                            <Frame BackgroundColor="{StaticResource CardBackground}"
+                                   CornerRadius="12"
+                                   Padding="10"
+                                   Margin="0,0,0,10"
+                                   HasShadow="False">
+                                <Grid ColumnDefinitions="Auto, *">
+                                    <Label Text="•"
+                                           FontSize="18"
+                                           TextColor="{StaticResource PrimaryAccent}" />
+                                    <Label Text="{Binding Text}"
+                                           Grid.Column="1"
+                                           FontSize="16"
+                                           TextColor="{StaticResource TextColor}"
+                                           Margin="5,0,0,0" />
+                                </Grid>
+                            </Frame>
                         </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
 
-            <!-- Action Buttons -->
-            <HorizontalStackLayout HorizontalOptions="Center" Spacing="10" Margin="0,20,0,0">
-                <!-- Favorite Button (always visible) -->
-                <Button Text="{Binding IsFavorite, Converter={StaticResource BoolToFavoriteTextConverter}}"
+            <!-- Кнопки -->
+            <VerticalStackLayout>
+                <HorizontalStackLayout HorizontalOptions="Center"
+                                   Spacing="10"
+                                   Margin="0,20,0,10">
+                    <Button Text="{Binding IsFavorite, Converter={StaticResource BoolToFavoriteTextConverter}}"
                         Command="{Binding ToggleFavoriteCommand}"
                         BackgroundColor="{Binding IsFavorite, Converter={StaticResource BoolToFavoriteColorConverter}}"
+                        TextColor="White"
+                        CornerRadius="10"
                         WidthRequest="120" />
 
-                <!-- Edit Button (visible only for owner) -->
-                <Button Text="Edit" 
+                    <Button Text="Edit"
                         Command="{Binding EditRecipeCommand}"
                         IsVisible="{Binding IsOwner}"
-                        BackgroundColor="#5B8C5A"
+                        BackgroundColor="{StaticResource SecondaryAccent}"
+                        TextColor="White"
+                        CornerRadius="10"
                         WidthRequest="120" />
+                </HorizontalStackLayout>
 
-                <!-- Delete Button (visible only for owner) -->
-                <Button Text="Delete" 
+                <Button Text="Delete"
                         Command="{Binding DeleteRecipeCommand}"
                         IsVisible="{Binding IsOwner}"
-                        BackgroundColor="#C75450"
-                        WidthRequest="120" />
-            </HorizontalStackLayout>
+                        BackgroundColor="{StaticResource ButtonColor}"
+                        TextColor="White"
+                        CornerRadius="10"
+                        WidthRequest="220" />
+            </VerticalStackLayout>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

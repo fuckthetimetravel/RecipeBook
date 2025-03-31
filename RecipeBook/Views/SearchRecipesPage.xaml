@@ -3,67 +3,149 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:RecipeBook.Converters"
              x:Class="RecipeBook.Views.SearchRecipesPage"
-             Title="Search Recipes">
+             Title="Search Recipes"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
     <ContentPage.Resources>
         <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
     </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+
+        <!-- Поисковая и фильтрационная панель -->
         <VerticalStackLayout Grid.Row="0" Spacing="10">
+
             <!-- Поиск по названию -->
-            <Grid ColumnDefinitions="*, Auto">
-                <Entry Grid.Column="0" Placeholder="Search recipes by title" Text="{Binding SearchQuery}" />
-                <Button Grid.Column="1" Text="Search" Command="{Binding SearchCommand}" />
-            </Grid>
+            <Frame Padding="15"
+                   Margin="0,10,0,0"
+                   BackgroundColor="{StaticResource CardBackground}"
+                   CornerRadius="16"
+                   HasShadow="True">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Entry Grid.Column="0"
+                       Placeholder="Search recipes by title"
+                       Text="{Binding SearchQuery}"
+                       BackgroundColor="{StaticResource CardBackground}"
+                       TextColor="{StaticResource TextColor}"
+                       HeightRequest="42" />
+                    <Button Grid.Column="1"
+                        Text="Search"
+                        Command="{Binding SearchCommand}"
+                        BackgroundColor="{StaticResource PrimaryAccent}"
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="42"
+                        Margin="10,0,0,0" />
+                </Grid>
+            </Frame>
 
             <!-- Фильтр по ингредиентам -->
-            <Frame Padding="10" Margin="0,10,0,0">
+            <Frame Padding="15"
+                   Margin="0,10,0,0"
+                   BackgroundColor="{StaticResource CardBackground}"
+                   CornerRadius="16"
+                   HasShadow="True">
+
                 <VerticalStackLayout Spacing="10">
-                    <Label Text="Filter by ingredients" FontAttributes="Bold" />
+                    <Label Text="Filter by ingredients"
+                           FontAttributes="Bold"
+                           FontSize="18"
+                           TextColor="{StaticResource SecondaryAccent}" />
 
                     <CollectionView ItemsSource="{Binding Ingredients}" EmptyView="No ingredients added">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Grid ColumnDefinitions="*, Auto" Padding="0,5">
                                     <VerticalStackLayout Grid.Column="0">
-                                        <Label Text="{Binding Name}" FontAttributes="Bold" />
-                                        <Label Text="{Binding Quantity}" />
+                                        <Label Text="{Binding Name}" FontAttributes="Bold" TextColor="{StaticResource TextColor}" />
+                                        <Label Text="{Binding Quantity}" TextColor="{StaticResource TextColor}" />
                                     </VerticalStackLayout>
-                                    <Button Grid.Column="1" Text="Remove" 
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveIngredientCommand}" 
-                                            CommandParameter="{Binding .}" 
-                                            BackgroundColor="Red" />
+                                    <Button Grid.Column="1"
+                                            Text="Remove"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveIngredientCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="{StaticResource ButtonColor}"
+                                            TextColor="White"
+                                            CornerRadius="8" />
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
 
+                    <!-- Добавление нового ингредиента -->
                     <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto, Auto" Margin="0,10,0,0">
-                        <Label Grid.Row="0" Grid.Column="0" Text="Ingredient Name" />
-                        <Entry Grid.Row="1" Grid.Column="0" Placeholder="Enter ingredient name" Text="{Binding NewIngredientName}" />
+                        <Label Grid.Row="0" Grid.Column="0" Text="Ingredient Name" TextColor="{StaticResource TextColor}" />
+                        <Entry Grid.Row="1" Grid.Column="0"
+                               Placeholder="Enter ingredient name"
+                               Text="{Binding NewIngredientName}"
+                               BackgroundColor="{StaticResource CardBackground}"
+                               HeightRequest="40" />
 
-                        <Label Grid.Row="0" Grid.Column="1" Text="Quantity" />
-                        <Entry Grid.Row="1" Grid.Column="1" Placeholder="Amount" Text="{Binding NewIngredientQuantity}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="Quantity" TextColor="{StaticResource TextColor}" />
+                        <Entry Grid.Row="1" Grid.Column="1"
+                               Placeholder="Amount"
+                               Text="{Binding NewIngredientQuantity}"
+                               BackgroundColor="{StaticResource CardBackground}"
+                               HeightRequest="40"
+                               Margin="10,0,0,0" />
 
-                        <Button Grid.Row="2" Grid.Column="0" Text="Add Ingredient" Command="{Binding AddIngredientCommand}" Margin="0,10,0,0" />
-                        <Button Grid.Row="2" Grid.Column="1" Text="Filter" Command="{Binding FilterByIngredientsCommand}" Margin="0,10,0,0" />
+                        <Button Grid.Row="2" Grid.Column="0"
+                                Text="Add Ingredient"
+                                Command="{Binding AddIngredientCommand}"
+                                BackgroundColor="{StaticResource SecondaryAccent}"
+                                TextColor="White"
+                                CornerRadius="10"
+                                Margin="0,10,0,0"
+                                HeightRequest="42" />
+
+                        <Button Grid.Row="2" Grid.Column="1"
+                                Text="Filter"
+                                Command="{Binding FilterByIngredientsCommand}"
+                                BackgroundColor="{StaticResource PrimaryAccent}"
+                                TextColor="White"
+                                CornerRadius="10"
+                                Margin="10,10,0,0"
+                                HeightRequest="42" />
                     </Grid>
                 </VerticalStackLayout>
             </Frame>
         </VerticalStackLayout>
 
         <!-- Результаты поиска -->
-        <CollectionView Grid.Row="1" ItemsSource="{Binding SearchResults}" Margin="0,20,0,0" 
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding SearchResults}"
+                        Margin="0,20,0,0"
                         EmptyView="No recipes found. Try a different search or filter.">
+
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Frame Margin="0,0,0,10" Padding="10">
-                        <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto">
-                            <Label Grid.Row="0" Grid.Column="0" Text="{Binding Title}" FontAttributes="Bold" FontSize="16" />
-                            <Label Grid.Row="1" Grid.Column="0" Text="{Binding Description}" LineBreakMode="TailTruncation" MaxLines="2" />
-                            <Button Grid.RowSpan="2" Grid.Column="1" Text="View" 
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RecipeTappedCommand}" 
-                                    CommandParameter="{Binding .}" 
+                    <Frame Margin="0,0,0,10"
+                           Padding="15"
+                           BackgroundColor="{StaticResource CardBackground}"
+                           CornerRadius="16"
+                           HasShadow="True">
+                        <Grid RowDefinitions="Auto,Auto"
+                              ColumnDefinitions="*,Auto">
+                            <Label Grid.Row="0"
+                                   Grid.Column="0"
+                                   Text="{Binding Title}"
+                                   FontAttributes="Bold"
+                                   FontSize="16"
+                                   TextColor="{StaticResource TextColor}" />
+                            <Label Grid.Row="1"
+                                   Grid.Column="0"
+                                   Text="{Binding Description}"
+                                   LineBreakMode="TailTruncation"
+                                   MaxLines="2"
+                                   TextColor="{StaticResource TextColor}" />
+                            <Button Grid.RowSpan="2"
+                                    Grid.Column="1"
+                                    Text="View"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RecipeTappedCommand}"
+                                    CommandParameter="{Binding .}"
+                                    BackgroundColor="{StaticResource SecondaryAccent}"
+                                    TextColor="White"
+                                    CornerRadius="10"
                                     VerticalOptions="Center" />
                         </Grid>
                     </Frame>
@@ -71,8 +153,17 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Label Grid.Row="2" Text="{Binding ErrorMessage}" TextColor="Red" IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+        <!-- Сообщение об ошибке -->
+        <Label Grid.Row="2"
+               Text="{Binding ErrorMessage}"
+               TextColor="Red"
+               IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
 
-        <ActivityIndicator Grid.RowSpan="3" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HorizontalOptions="Center" VerticalOptions="Center" />
+        <!-- Индикатор загрузки -->
+        <ActivityIndicator Grid.RowSpan="3"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
     </Grid>
 </ContentPage>

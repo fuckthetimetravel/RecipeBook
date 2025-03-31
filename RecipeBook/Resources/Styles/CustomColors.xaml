@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Custom warm pastel color palette -->
+    <Color x:Key="BackgroundColor">#FFF8F0</Color>
+    <Color x:Key="PrimaryAccent">#F4A261</Color>
+    <Color x:Key="SecondaryAccent">#2A9D8F</Color>
+    <Color x:Key="CardBackground">#FAE5D3</Color>
+    <Color x:Key="ButtonColor">#E76F51</Color>
+    <Color x:Key="TextColor">#3D3D3D</Color>
+    <Color x:Key="HighlightColor">#E9C46A</Color>
+
+    <!-- Optionally define semantic aliases -->
+    <Color x:Key="Primary">#F4A261</Color>
+    <Color x:Key="Secondary">#2A9D8F</Color>
+    <Color x:Key="Tertiary">#E9C46A</Color>
+</ResourceDictionary>
