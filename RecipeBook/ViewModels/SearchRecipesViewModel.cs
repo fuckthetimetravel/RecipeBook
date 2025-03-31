@@ -15,7 +15,6 @@ namespace RecipeBook.ViewModels
         private ObservableCollection<RecipeModel> _searchResults;
         private ObservableCollection<Ingredient> _ingredients;
         private string _newIngredientName;
-        private string _newIngredientQuantity;
 
         public string SearchQuery
         {
@@ -39,12 +38,6 @@ namespace RecipeBook.ViewModels
         {
             get => _newIngredientName;
             set => SetProperty(ref _newIngredientName, value);
-        }
-
-        public string NewIngredientQuantity
-        {
-            get => _newIngredientQuantity;
-            set => SetProperty(ref _newIngredientQuantity, value);
         }
 
         public ICommand SearchCommand { get; }
@@ -92,7 +85,7 @@ namespace RecipeBook.ViewModels
 
             await ExecuteWithBusyIndicator(async () =>
             {
-                var recipes = await _recipeService.SearchRecipesByTitleAsync(SearchQuery);
+                var recipes = await _recipeService.SearchByTitleAsync(SearchQuery);
 
                 SearchResults.Clear();
                 foreach (var recipe in recipes)
@@ -121,11 +114,9 @@ namespace RecipeBook.ViewModels
             Ingredients.Add(new Ingredient
             {
                 Name = NewIngredientName,
-                Quantity = NewIngredientQuantity
             });
 
             NewIngredientName = string.Empty;
-            NewIngredientQuantity = string.Empty;
         }
 
         private void ExecuteRemoveIngredientCommand(Ingredient ingredient)
@@ -143,7 +134,13 @@ namespace RecipeBook.ViewModels
 
             await ExecuteWithBusyIndicator(async () =>
             {
-                var recipes = await _recipeService.FilterRecipesByIngredientsAsync(new List<Ingredient>(Ingredients));
+                var ingredientNames = Ingredients
+                    .Where(i => !string.IsNullOrWhiteSpace(i.Name))
+                    .Select(i => i.Name.Trim().ToLower())
+                    .Distinct()
+                    .ToList();
+
+                var recipes = await _recipeService.FilterByIngredientNamesAsync(ingredientNames);
 
                 SearchResults.Clear();
                 foreach (var recipe in recipes)
@@ -152,5 +149,6 @@ namespace RecipeBook.ViewModels
                 }
             });
         }
+
     }
 }

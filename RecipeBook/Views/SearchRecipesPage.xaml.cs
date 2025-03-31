@@ -33,7 +33,6 @@ namespace RecipeBook.Views
 
                 // Добавляем ингредиент в ViewModel
                 _viewModel.NewIngredientName = ingredientName;
-                _viewModel.NewIngredientQuantity = quantity ?? "";
                 _viewModel.AddIngredientCommand.Execute(null);
 
                 // Спрашиваем, хочет ли пользователь добавить еще ингредиенты

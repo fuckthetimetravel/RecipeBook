@@ -14,6 +14,8 @@ namespace RecipeBook.Services
     {
         private HttpClient _httpClient;
         private AuthService _authService;
+        private readonly RecipeSearchService _searchService = new RecipeSearchService();
+
 
         public RecipeService(AuthService authService)
         {
@@ -160,7 +162,6 @@ namespace RecipeBook.Services
                 throw new Exception($"Failed to add recipe: {responseString}");
             }
 
-            // Firebase возвращает {"name": "generated-id"}
             var result = JsonSerializer.Deserialize<Dictionary<string, string>>(responseString);
             recipe.Id = result["name"];
 
@@ -211,7 +212,6 @@ namespace RecipeBook.Services
             }
         }
 
-        // Метод для конвертации изображения в Base64
         public async Task<string> ConvertImageToBase64Async(FileResult file)
         {
             if (file == null)
@@ -260,57 +260,18 @@ namespace RecipeBook.Services
             }
         }
 
-        public async Task<List<RecipeModel>> SearchRecipesByTitleAsync(string searchTerm)
+        public async Task<List<RecipeModel>> SearchByTitleAsync(string query)
         {
             var allRecipes = await GetAllRecipesAsync();
-            return allRecipes
-                .Where(r => r.Title.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0)
-                .ToList();
+            return _searchService.SearchByTitle(allRecipes, query);
         }
 
-        public async Task<List<RecipeModel>> FilterRecipesByIngredientsAsync(List<Ingredient> userIngredients)
+        public async Task<List<RecipeModel>> FilterByIngredientNamesAsync(List<string> names)
         {
             var allRecipes = await GetAllRecipesAsync();
-            var filteredRecipes = new List<RecipeModel>();
-
-            foreach (var recipe in allRecipes)
-            {
-                bool hasAllIngredients = true;
-
-                foreach (var recipeIngredient in recipe.Ingredients)
-                {
-                    var userIngredient = userIngredients.FirstOrDefault(i =>
-                        i.Name.Equals(recipeIngredient.Name, StringComparison.OrdinalIgnoreCase));
-
-                    if (userIngredient == null)
-                    {
-                        hasAllIngredients = false;
-                        break;
-                    }
-
-                    // Простая проверка количества (можно улучшить с учетом единиц измерения)
-                    if (!string.IsNullOrEmpty(recipeIngredient.Quantity) &&
-                        !string.IsNullOrEmpty(userIngredient.Quantity))
-                    {
-                        if (double.TryParse(recipeIngredient.Quantity, out double recipeAmount) &&
-                            double.TryParse(userIngredient.Quantity, out double userAmount))
-                        {
-                            if (userAmount < recipeAmount)
-                            {
-                                hasAllIngredients = false;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (hasAllIngredients)
-                {
-                    filteredRecipes.Add(recipe);
-                }
-            }
-
-            return filteredRecipes;
+            return _searchService.FilterByIngredients(allRecipes, names);
         }
+
+
     }
 }

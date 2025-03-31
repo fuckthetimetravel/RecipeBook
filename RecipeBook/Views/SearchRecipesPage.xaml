@@ -58,7 +58,6 @@
                                 <Grid ColumnDefinitions="*, Auto" Padding="0,5">
                                     <VerticalStackLayout Grid.Column="0">
                                         <Label Text="{Binding Name}" FontAttributes="Bold" TextColor="{StaticResource TextColor}" />
-                                        <Label Text="{Binding Quantity}" TextColor="{StaticResource TextColor}" />
                                     </VerticalStackLayout>
                                     <Button Grid.Column="1"
                                             Text="Remove"
@@ -80,14 +79,6 @@
                                Text="{Binding NewIngredientName}"
                                BackgroundColor="{StaticResource CardBackground}"
                                HeightRequest="40" />
-
-                        <Label Grid.Row="0" Grid.Column="1" Text="Quantity" TextColor="{StaticResource TextColor}" />
-                        <Entry Grid.Row="1" Grid.Column="1"
-                               Placeholder="Amount"
-                               Text="{Binding NewIngredientQuantity}"
-                               BackgroundColor="{StaticResource CardBackground}"
-                               HeightRequest="40"
-                               Margin="10,0,0,0" />
 
                         <Button Grid.Row="2" Grid.Column="0"
                                 Text="Add Ingredient"

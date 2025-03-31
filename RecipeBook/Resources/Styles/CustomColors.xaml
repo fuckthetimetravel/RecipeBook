@@ -2,17 +2,16 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- Custom warm pastel color palette -->
-    <Color x:Key="BackgroundColor">#FFF8F0</Color>
-    <Color x:Key="PrimaryAccent">#F4A261</Color>
-    <Color x:Key="SecondaryAccent">#2A9D8F</Color>
-    <Color x:Key="CardBackground">#FAE5D3</Color>
-    <Color x:Key="ButtonColor">#E76F51</Color>
-    <Color x:Key="TextColor">#3D3D3D</Color>
-    <Color x:Key="HighlightColor">#E9C46A</Color>
+    <Color x:Key="BackgroundColor">#F3EFE0</Color>
+    <Color x:Key="PrimaryAccent">#A9B388</Color>
+    <Color x:Key="SecondaryAccent">#5F6F52</Color>
+    <Color x:Key="CardBackground">#EAE4D3</Color>
+    <Color x:Key="ButtonColor">#A44A3F</Color>
+    <Color x:Key="TextColor">#2A2A2A</Color>
+    <Color x:Key="HighlightColor">#D9AE61</Color>
+    
+    <Color x:Key="Primary">#A9B388</Color>
+    <Color x:Key="Secondary">#5F6F52</Color>
+    <Color x:Key="Tertiary">#D9AE61</Color>
 
-    <!-- Optionally define semantic aliases -->
-    <Color x:Key="Primary">#F4A261</Color>
-    <Color x:Key="Secondary">#2A9D8F</Color>
-    <Color x:Key="Tertiary">#E9C46A</Color>
 </ResourceDictionary>
