@@ -8,6 +8,7 @@
 
     <ContentPage.Resources>
         <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
+        <converters:Base64ToImageConverter x:Key="Base64ToImageConverter" />
     </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto,*,Auto" Padding="20">
@@ -104,45 +105,61 @@
 
         <!-- Результаты поиска -->
         <CollectionView Grid.Row="1"
-                        ItemsSource="{Binding SearchResults}"
-                        Margin="0,20,0,0"
-                        EmptyView="No recipes found. Try a different search or filter.">
+                ItemsSource="{Binding SearchResults}"
+                Margin="0,20,0,0"
+                EmptyView="No recipes found. Try a different search or filter.">
 
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Frame Margin="0,0,0,10"
-                           Padding="15"
+                           Padding="0"
                            BackgroundColor="{StaticResource CardBackground}"
                            CornerRadius="16"
                            HasShadow="True">
-                        <Grid RowDefinitions="Auto,Auto"
-                              ColumnDefinitions="*,Auto">
-                            <Label Grid.Row="0"
-                                   Grid.Column="0"
-                                   Text="{Binding Title}"
-                                   FontAttributes="Bold"
-                                   FontSize="16"
-                                   TextColor="{StaticResource TextColor}" />
-                            <Label Grid.Row="1"
-                                   Grid.Column="0"
-                                   Text="{Binding Description}"
-                                   LineBreakMode="TailTruncation"
-                                   MaxLines="2"
-                                   TextColor="{StaticResource TextColor}" />
-                            <Button Grid.RowSpan="2"
-                                    Grid.Column="1"
-                                    Text="View"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RecipeTappedCommand}"
-                                    CommandParameter="{Binding .}"
-                                    BackgroundColor="{StaticResource SecondaryAccent}"
-                                    TextColor="White"
-                                    CornerRadius="10"
-                                    VerticalOptions="Center" />
-                        </Grid>
+
+                        <VerticalStackLayout Spacing="10" Padding="15">
+                            
+                            <Border Stroke="{StaticResource SecondaryAccent}" HeightRequest="120">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12" />
+                                </Border.StrokeShape>
+                                <Image Source="{Binding ImageBase64, Converter={StaticResource Base64ToImageConverter}}"
+                                       Aspect="AspectFill"
+                                       IsVisible="{Binding ImageBase64, Converter={StaticResource StringToBoolConverter}}" />
+                            </Border>
+                            
+                            <Grid RowDefinitions="Auto,Auto"
+                                  ColumnDefinitions="*,Auto">
+                                <Label Grid.Row="0"
+                                       Grid.Column="0"
+                                       Text="{Binding Title}"
+                                       FontAttributes="Bold"
+                                       FontSize="16"
+                                       TextColor="{StaticResource TextColor}" />
+                                
+                                <Label Grid.Row="1"
+                                       Grid.Column="0"
+                                       Text="{Binding Description}"
+                                       LineBreakMode="TailTruncation"
+                                       MaxLines="3"
+                                       TextColor="{StaticResource TextColor}" />
+                                
+                                <Button Grid.RowSpan="2"
+                                        Grid.Column="1"
+                                        Text="View"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RecipeTappedCommand}"
+                                        CommandParameter="{Binding .}"
+                                        BackgroundColor="{StaticResource SecondaryAccent}"
+                                        TextColor="White"
+                                        CornerRadius="10"
+                                        VerticalOptions="Center" />
+                            </Grid>
+                        </VerticalStackLayout>
                     </Frame>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
 
         <!-- Сообщение об ошибке -->
         <Label Grid.Row="2"
