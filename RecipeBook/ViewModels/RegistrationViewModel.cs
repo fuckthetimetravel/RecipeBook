@@ -9,9 +9,13 @@ namespace RecipeBook.ViewModels
     public class RegistrationViewModel : BaseViewModel
     {
         private readonly AuthService _authService;
+
         private string _email;
         private string _password;
         private string _confirmPassword;
+        private string _firstName;
+        private string _lastName;
+        private string _errorMessage;
 
         public string Email
         {
@@ -31,37 +35,74 @@ namespace RecipeBook.ViewModels
             set => SetProperty(ref _confirmPassword, value);
         }
 
-        public ICommand RegisterCommand { get; }
-        public ICommand LoginCommand { get; }
+        public string FirstName
+        {
+            get => _firstName;
+            set => SetProperty(ref _firstName, value);
+        }
+
+        public string LastName
+        {
+            get => _lastName;
+            set => SetProperty(ref _lastName, value);
+        }
+
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            set => SetProperty(ref _errorMessage, value);
+        }
+
+        public ICommand SignUpCommand { get; }
 
         public RegistrationViewModel(AuthService authService)
         {
             _authService = authService;
-            Title = "Register";
 
-            RegisterCommand = new Command(async () => await ExecuteRegisterCommand());
-            LoginCommand = new Command(async () => await Shell.Current.GoToAsync("/login"));
+            SignUpCommand = new Command(async () => await ExecuteSignUpCommand());
         }
 
-        private async Task ExecuteRegisterCommand()
+        private async Task ExecuteSignUpCommand()
         {
+            // Validate input
+            if (string.IsNullOrWhiteSpace(Email))
+            {
+                ErrorMessage = "Email is required";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(Password))
+            {
+                ErrorMessage = "Password is required";
+                return;
+            }
+
+            if (Password != ConfirmPassword)
+            {
+                ErrorMessage = "Passwords do not match";
+                return;
+            }
+
             await ExecuteWithBusyIndicator(async () =>
             {
-                if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password) || string.IsNullOrWhiteSpace(ConfirmPassword))
+                try
                 {
-                    ErrorMessage = "All fields are required";
-                    return;
-                }
+                    // Sign up user
+                    await _authService.SignUpAsync(Email, Password, FirstName ?? string.Empty, LastName ?? string.Empty);
 
-                if (Password != ConfirmPassword)
+                    // Navigate to main page
+                    await Shell.Current.GoToAsync("//profile");
+                }
+                catch (Exception ex)
                 {
-                    ErrorMessage = "Passwords do not match";
-                    return;
+                    ErrorMessage = $"Sign up failed: {ex.Message}";
                 }
-
-                await _authService.SignUpAsync(Email, Password);
-                await Shell.Current.GoToAsync("/profile");
             });
+        }
+
+        private async Task ExecuteGoToLoginCommand()
+        {
+            Application.Current.MainPage = new AppShell();
         }
     }
 }

@@ -10,7 +10,6 @@
         <converters:StringToBoolConverter x:Key="StringToBoolConverter" />
         <converters:BoolToFavoriteTextConverter x:Key="BoolToFavoriteTextConverter" />
         <converters:BoolToFavoriteColorConverter x:Key="BoolToFavoriteColorConverter" />
-        <converters:IndexToStepNumberConverter x:Key="IndexToStepNumberConverter" />
     </ContentPage.Resources>
 
     <ScrollView>
@@ -57,20 +56,23 @@
                    FontAttributes="Bold" 
                    Margin="0,10,0,0" />
 
-            <CollectionView ItemsSource="{Binding Recipe.Steps}">
-                <CollectionView.ItemTemplate>
+            <!-- Using a ListView instead of CollectionView for better index support -->
+            <ListView ItemsSource="{Binding Recipe.Steps}" 
+                      HasUnevenRows="True" 
+                      SeparatorVisibility="None"
+                      SelectionMode="None">
+                <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Grid Padding="5" ColumnDefinitions="Auto, *">
-                            <Label Text="{Binding ., Converter={StaticResource IndexToStepNumberConverter}, ConverterParameter={Binding Source={RelativeSource AncestorType={x:Type CollectionView}}, Path=ItemsSource}}" 
-                                   Grid.Column="0" 
-                                   FontAttributes="Bold" />
-                            <Label Text="{Binding Text}" 
-                                   Grid.Column="1" 
-                                   Margin="5,0,0,0" />
-                        </Grid>
+                        <ViewCell>
+                            <Grid Padding="5" ColumnDefinitions="Auto, *">
+                                <Label Text="{Binding Text}" 
+                                       Grid.Column="1" 
+                                       Margin="5,0,0,0" />
+                            </Grid>
+                        </ViewCell>
                     </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                </ListView.ItemTemplate>
+            </ListView>
 
             <!-- Action Buttons -->
             <HorizontalStackLayout HorizontalOptions="Center" Spacing="10" Margin="0,20,0,0">

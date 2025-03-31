@@ -18,10 +18,7 @@ namespace RecipeBook.Views
         {
             base.OnAppearing();
             // Refresh user data when page appears
-            // Вместо LoadUserCommand используем метод, который есть в ViewModel
-            _viewModel.IsBusy = true;
-            // Здесь можно добавить логику обновления данных пользователя
-            _viewModel.IsBusy = false;
+            _viewModel.LoadUserData();
         }
     }
 }

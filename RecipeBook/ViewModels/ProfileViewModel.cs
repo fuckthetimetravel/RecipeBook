@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
 using RecipeBook.Models;
@@ -10,47 +9,108 @@ namespace RecipeBook.ViewModels
     public class ProfileViewModel : BaseViewModel
     {
         private readonly AuthService _authService;
-        private User _user;
-        private bool _isAuthenticated;
 
-        public User User
+        private string _email;
+        private string _firstName;
+        private string _lastName;
+        private string _errorMessage;
+        private bool _isEditing;
+
+        public string Email
         {
-            get => _user;
-            set => SetProperty(ref _user, value);
+            get => _email;
+            set => SetProperty(ref _email, value);
         }
 
-        public bool IsAuthenticated
+        public string FirstName
         {
-            get => _isAuthenticated;
-            set => SetProperty(ref _isAuthenticated, value);
+            get => _firstName;
+            set => SetProperty(ref _firstName, value);
         }
 
-        public ICommand LogoutCommand { get; }
-        public ICommand LoginCommand { get; }
-        public ICommand RegisterCommand { get; }
+        public string LastName
+        {
+            get => _lastName;
+            set => SetProperty(ref _lastName, value);
+        }
+
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            set => SetProperty(ref _errorMessage, value);
+        }
+
+        public bool IsEditing
+        {
+            get => _isEditing;
+            set => SetProperty(ref _isEditing, value);
+        }
+
+        public ICommand EditProfileCommand { get; }
+        public ICommand SaveProfileCommand { get; }
+        public ICommand SignOutCommand { get; }
 
         public ProfileViewModel(AuthService authService)
         {
             _authService = authService;
-            Title = "Profile";
 
-            LogoutCommand = new Command(ExecuteLogoutCommand);
-            LoginCommand = new Command(async () => await Shell.Current.GoToAsync("/login"));
-            RegisterCommand = new Command(async () => await Shell.Current.GoToAsync("/register"));
+            EditProfileCommand = new Command(ExecuteEditProfileCommand);
+            SaveProfileCommand = new Command(async () => await ExecuteSaveProfileCommand());
+            SignOutCommand = new Command(async () => await ExecuteSignOutCommand());
 
-            LoadUser();
+            // Load user data
+            LoadUserData();
         }
 
-        public void LoadUser()
+        public void LoadUserData()
         {
-            User = _authService.CurrentUser;
-            IsAuthenticated = _authService.IsAuthenticated;
+            if (_authService.IsAuthenticated && _authService.CurrentUser != null)
+            {
+                Email = _authService.CurrentUser.Email;
+                FirstName = _authService.CurrentUser.FirstName ?? string.Empty;
+                LastName = _authService.CurrentUser.LastName ?? string.Empty;
+            }
         }
 
-        private void ExecuteLogoutCommand()
+        private void ExecuteEditProfileCommand()
         {
-            _authService.SignOut();
-            LoadUser();
+            IsEditing = true;
+        }
+
+        private async Task ExecuteSaveProfileCommand()
+        {
+            if (!_authService.IsAuthenticated)
+            {
+                ErrorMessage = "You must be logged in to update your profile";
+                return;
+            }
+
+            await ExecuteWithBusyIndicator(async () =>
+            {
+                try
+                {
+                    // Update user data
+                    var user = _authService.CurrentUser;
+                    user.FirstName = FirstName;
+                    user.LastName = LastName;
+
+                    // Save to database
+                    await _authService.UpdateUserAsync(user);
+
+                    IsEditing = false;
+                    ErrorMessage = string.Empty;
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = $"Failed to update profile: {ex.Message}";
+                }
+            });
+        }
+
+        private async Task ExecuteSignOutCommand()
+        {
+            await _authService.SignOutAsync();
+            await Shell.Current.GoToAsync("//login");
         }
     }
 }

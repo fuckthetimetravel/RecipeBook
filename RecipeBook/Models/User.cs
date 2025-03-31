@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace RecipeBook.Models
 {
-    /// <summary>
-    /// Модель пользователя
-    /// </summary>
     public class User
     {
         [JsonPropertyName("id")]
@@ -18,7 +11,17 @@ namespace RecipeBook.Models
         [JsonPropertyName("email")]
         public string Email { get; set; }
 
+        [JsonPropertyName("firstName")]
+        public string FirstName { get; set; }
+
+        [JsonPropertyName("lastName")]
+        public string LastName { get; set; }
+
         [JsonPropertyName("favoriteRecipes")]
-        public List<string> FavoriteRecipes { get; set; } = new(); // Список избранных рецептов
+        public List<string> FavoriteRecipes { get; set; }
+
+        // Helper property to get full name
+        [JsonIgnore]
+        public string FullName => $"{FirstName} {LastName}".Trim();
     }
 }

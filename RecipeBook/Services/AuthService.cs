@@ -10,174 +10,247 @@ namespace RecipeBook.Services
 {
     public class AuthService
     {
-        private HttpClient _httpClient;
-        private string _authToken;
-        private User _currentUser;
+        private readonly HttpClient _httpClient;
+        private const string AUTH_TOKEN_KEY = "auth_token";
+        private const string USER_DATA_KEY = "user_data";
 
-        public User CurrentUser => _currentUser;
-        public bool IsAuthenticated => _currentUser != null;
-        public string AuthToken => _authToken;
+        public bool IsAuthenticated => !string.IsNullOrEmpty(AuthToken) && CurrentUser != null;
+        public string AuthToken { get; private set; }
+        public User CurrentUser { get; private set; }
 
-        public AuthService()
+        public AuthService(HttpClient httpClient)
         {
-            _httpClient = new HttpClient();
+            _httpClient = httpClient;
+            // Try to load saved authentication data when service is created
+            LoadSavedAuthDataAsync().ConfigureAwait(false);
         }
 
-        public async Task<User> SignUpAsync(string email, string password)
+        public async Task LoadSavedAuthDataAsync()
         {
-            var payload = new
+            try
             {
-                email,
-                password,
-                returnSecureToken = true
-            };
+                // Get saved auth token
+                AuthToken = await SecureStorage.GetAsync(AUTH_TOKEN_KEY);
 
-            var json = JsonSerializer.Serialize(payload);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var response = await _httpClient.PostAsync(FirebaseConfig.FirebaseConfig.GetSignUpUrl(), content);
-            var responseString = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
-                if (error.TryGetValue("error", out var errorDetails) &&
-                    errorDetails.TryGetProperty("message", out var errorMessage))
+                if (!string.IsNullOrEmpty(AuthToken))
                 {
-                    throw new Exception($"Failed to sign up: {errorMessage.GetString()}");
+                    // Get saved user data
+                    string userData = await SecureStorage.GetAsync(USER_DATA_KEY);
+                    if (!string.IsNullOrEmpty(userData))
+                    {
+                        CurrentUser = JsonSerializer.Deserialize<User>(userData);
+                    }
+
+                    // Validate the token by making a request
+                    if (CurrentUser != null)
+                    {
+                        // Optional: Validate token with a lightweight API call
+                        // If validation fails, clear the saved data
+                        try
+                        {
+                            await GetUserAsync(CurrentUser.Id);
+                        }
+                        catch
+                        {
+                            await ClearSavedAuthDataAsync();
+                        }
+                    }
                 }
-                throw new Exception($"Failed to sign up: {responseString}");
             }
-
-            var authResult = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
-            var userId = authResult["localId"].GetString();
-            _authToken = authResult["idToken"].GetString();
-
-            // Создаем пользователя в Realtime Database
-            _currentUser = new User
+            catch (Exception ex)
             {
-                Id = userId,
-                Email = email,
-                FavoriteRecipes = new List<string>()
-            };
+                System.Diagnostics.Debug.WriteLine($"Error loading saved auth data: {ex.Message}");
+                await ClearSavedAuthDataAsync();
+            }
+        }
 
-            await CreateUserInDatabase(_currentUser);
+        private async Task SaveAuthDataAsync()
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(AuthToken) && CurrentUser != null)
+                {
+                    await SecureStorage.SetAsync(AUTH_TOKEN_KEY, AuthToken);
+                    string userData = JsonSerializer.Serialize(CurrentUser);
+                    await SecureStorage.SetAsync(USER_DATA_KEY, userData);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error saving auth data: {ex.Message}");
+            }
+        }
 
-            return _currentUser;
+        private async Task ClearSavedAuthDataAsync()
+        {
+            try
+            {
+                SecureStorage.Remove(AUTH_TOKEN_KEY);
+                SecureStorage.Remove(USER_DATA_KEY);
+                AuthToken = null;
+                CurrentUser = null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error clearing auth data: {ex.Message}");
+            }
         }
 
         public async Task<User> SignInAsync(string email, string password)
         {
-            var payload = new
+            var url = FirebaseConfig.FirebaseConfig.GetSignInUrl();
+
+            var requestData = new
             {
                 email,
                 password,
                 returnSecureToken = true
             };
 
-            var json = JsonSerializer.Serialize(payload);
+            var json = JsonSerializer.Serialize(requestData);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(FirebaseConfig.FirebaseConfig.GetSignInUrl(), content);
+            var response = await _httpClient.PostAsync(url, content);
             var responseString = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
-                var error = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
-                if (error.TryGetValue("error", out var errorDetails) &&
-                    errorDetails.TryGetProperty("message", out var errorMessage))
-                {
-                    throw new Exception($"Failed to sign in: {errorMessage.GetString()}");
-                }
                 throw new Exception($"Failed to sign in: {responseString}");
             }
 
             var authResult = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
-            var userId = authResult["localId"].GetString();
-            _authToken = authResult["idToken"].GetString();
 
-            // Получаем данные пользователя из Realtime Database
-            _currentUser = await GetUserFromDatabase(userId);
+            if (authResult.TryGetValue("idToken", out var idToken))
+            {
+                AuthToken = idToken.GetString();
 
-            return _currentUser;
+                if (authResult.TryGetValue("localId", out var localId))
+                {
+                    var userId = localId.GetString();
+                    CurrentUser = await GetUserAsync(userId);
+
+                    // Save authentication data for persistent login
+                    await SaveAuthDataAsync();
+
+                    return CurrentUser;
+                }
+            }
+
+            throw new Exception("Failed to parse authentication response");
         }
 
-        public void SignOut()
+        public async Task<User> SignUpAsync(string email, string password, string firstName, string lastName)
         {
-            _currentUser = null;
-            _authToken = null;
+            var url = FirebaseConfig.FirebaseConfig.GetSignUpUrl();
+
+            var requestData = new
+            {
+                email,
+                password,
+                returnSecureToken = true
+            };
+
+            var json = JsonSerializer.Serialize(requestData);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync(url, content);
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Failed to sign up: {responseString}");
+            }
+
+            var authResult = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
+
+            if (authResult.TryGetValue("idToken", out var idToken) &&
+                authResult.TryGetValue("localId", out var localId))
+            {
+                AuthToken = idToken.GetString();
+                var userId = localId.GetString();
+
+                // Create user profile
+                var user = new User
+                {
+                    Id = userId,
+                    Email = email,
+                    FirstName = firstName,
+                    LastName = lastName,
+                    FavoriteRecipes = new List<string>()
+                };
+
+                await CreateUserAsync(user);
+                CurrentUser = user;
+
+                // Save authentication data for persistent login
+                await SaveAuthDataAsync();
+
+                return user;
+            }
+
+            throw new Exception("Failed to parse authentication response");
         }
 
-        private async Task CreateUserInDatabase(User user)
+        public async Task SignOutAsync()
         {
-            var url = $"{FirebaseConfig.FirebaseConfig.GetUserUrl(user.Id)}?auth={_authToken}";
+            AuthToken = null;
+            CurrentUser = null;
+
+            // Clear saved authentication data
+            await ClearSavedAuthDataAsync();
+        }
+
+        private async Task CreateUserAsync(User user)
+        {
+            var url = $"{FirebaseConfig.FirebaseConfig.GetUserUrl(user.Id)}?auth={AuthToken}";
+
             var json = JsonSerializer.Serialize(user);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var request = new HttpRequestMessage(HttpMethod.Put, url);
-            request.Content = content;
-
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.PutAsync(url, content);
             var responseString = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Failed to create user in database: {responseString}");
+                throw new Exception($"Failed to create user: {responseString}");
             }
         }
 
-        private async Task<User> GetUserFromDatabase(string userId)
+        public async Task<User> GetUserAsync(string userId)
         {
-            var url = $"{FirebaseConfig.FirebaseConfig.GetUserUrl(userId)}?auth={_authToken}";
+            var url = $"{FirebaseConfig.FirebaseConfig.GetUserUrl(userId)}?auth={AuthToken}";
 
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.GetAsync(url);
             var responseString = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Failed to get user from database: {responseString}");
+                throw new Exception($"Failed to get user: {responseString}");
             }
 
-            var user = JsonSerializer.Deserialize<User>(responseString);
-            if (user == null)
-            {
-                // Если пользователь не найден, создаем новый
-                user = new User
-                {
-                    Id = userId,
-                    Email = "unknown@email.com", // Можно получить из токена
-                    FavoriteRecipes = new List<string>()
-                };
-                await CreateUserInDatabase(user);
-            }
-
-            // Убедимся, что ID установлен
-            user.Id = userId;
-
-            return user;
+            return JsonSerializer.Deserialize<User>(responseString);
         }
 
         public async Task UpdateUserAsync(User user)
         {
-            var url = $"{FirebaseConfig.FirebaseConfig.GetUserUrl(user.Id)}?auth={_authToken}";
+            var url = $"{FirebaseConfig.FirebaseConfig.GetUserUrl(user.Id)}?auth={AuthToken}";
 
             var json = JsonSerializer.Serialize(user);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var request = new HttpRequestMessage(HttpMethod.Put, url);
-            request.Content = content;
-
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.PutAsync(url, content);
             var responseString = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Failed to update user in database: {responseString}");
+                throw new Exception($"Failed to update user: {responseString}");
             }
 
-            _currentUser = user;
+            // Update current user
+            CurrentUser = user;
+
+            // Update saved user data
+            await SaveAuthDataAsync();
         }
     }
 }

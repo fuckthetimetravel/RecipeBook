@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
 using RecipeBook.Services;
+using RecipeBook.Views;
 
 namespace RecipeBook.ViewModels
 {
@@ -33,7 +34,14 @@ namespace RecipeBook.ViewModels
             Title = "Login";
 
             LoginCommand = new Command(async () => await ExecuteLoginCommand());
-            RegisterCommand = new Command(async () => await Shell.Current.GoToAsync("/register"));
+            RegisterCommand = new Command(async () =>
+            {
+                var registrationViewModel = App.Current.Handler.MauiContext.Services.GetService<RegistrationViewModel>();
+                var registrationPage = new RegistrPage(registrationViewModel);
+
+                await Application.Current.MainPage.Navigation.PushAsync(registrationPage);
+            });
+
         }
 
         private async Task ExecuteLoginCommand()
@@ -47,7 +55,8 @@ namespace RecipeBook.ViewModels
                 }
 
                 await _authService.SignInAsync(Email, Password);
-                await Shell.Current.GoToAsync("/profile");
+
+                Application.Current.MainPage = new AppShell();
             });
         }
     }

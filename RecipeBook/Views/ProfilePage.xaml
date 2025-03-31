@@ -1,34 +1,93 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:RecipeBook.Converters"
              x:Class="RecipeBook.Views.ProfilePage"
-             Title="{Binding Title}">
-    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
-        <!-- Authenticated User View -->
-        <VerticalStackLayout Grid.Row="1" Spacing="20" VerticalOptions="Center" IsVisible="{Binding IsAuthenticated}">
-            <Label Text="Your Profile" FontSize="24" HorizontalOptions="Center" FontAttributes="Bold" Margin="0,0,0,20"/>
+             Title="Profile">
 
-            <Frame Padding="20" Margin="0,0,0,20">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="Email" FontAttributes="Bold" />
-                    <Label Text="{Binding User.Email}" />
-                </VerticalStackLayout>
-            </Frame>
+    <ContentPage.Resources>
+        <converters:StringToBoolConverter x:Key="StringToBoolConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </ContentPage.Resources>
 
-            <Button Text="Logout" Command="{Binding LogoutCommand}" />
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+
+            <Label Text="{Binding Email}" 
+                   FontSize="18" 
+                   HorizontalOptions="Center" 
+                   Margin="0,10,0,20" />
+
+            <!-- Profile Information -->
+            <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*">
+                <!-- First Name -->
+                <Label Text="First Name:" 
+                       Grid.Row="0" Grid.Column="0" 
+                       FontAttributes="Bold" 
+                       VerticalOptions="Center" />
+
+                <Label Text="{Binding FirstName}" 
+                       Grid.Row="0" Grid.Column="1" 
+                       IsVisible="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}" 
+                       VerticalOptions="Center" />
+
+                <Entry Text="{Binding FirstName}" 
+                       Grid.Row="0" Grid.Column="1" 
+                       IsVisible="{Binding IsEditing}" 
+                       Placeholder="Enter your first name" />
+
+                <!-- Last Name -->
+                <Label Text="Last Name:" 
+                       Grid.Row="1" Grid.Column="0" 
+                       FontAttributes="Bold" 
+                       VerticalOptions="Center" />
+
+                <Label Text="{Binding LastName}" 
+                       Grid.Row="1" Grid.Column="1" 
+                       IsVisible="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}" 
+                       VerticalOptions="Center" />
+
+                <Entry Text="{Binding LastName}" 
+                       Grid.Row="1" Grid.Column="1" 
+                       IsVisible="{Binding IsEditing}" 
+                       Placeholder="Enter your last name" />
+
+                <!-- Email -->
+                <Label Text="Email:" 
+                       Grid.Row="2" Grid.Column="0" 
+                       FontAttributes="Bold" 
+                       VerticalOptions="Center" />
+
+                <Label Text="{Binding Email}" 
+                       Grid.Row="2" Grid.Column="1" 
+                       VerticalOptions="Center" />
+            </Grid>
+
+            <!-- Action Buttons -->
+            <VerticalStackLayout Spacing="10" Margin="0,20,0,0">
+                <!-- Edit Profile Button -->
+                <Button Text="Edit Profile" 
+                        Command="{Binding EditProfileCommand}" 
+                        IsVisible="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}" 
+                        BackgroundColor="#5B8C5A" />
+
+                <!-- Save Profile Button -->
+                <Button Text="Save Profile" 
+                        Command="{Binding SaveProfileCommand}" 
+                        IsVisible="{Binding IsEditing}" 
+                        BackgroundColor="#5B8C5A" />
+
+                <!-- Sign Out Button -->
+                <Button Text="Sign Out" 
+                        Command="{Binding SignOutCommand}" 
+                        BackgroundColor="#C75450" />
+            </VerticalStackLayout>
+
+            <!-- Error Message -->
+            <Label Text="{Binding ErrorMessage}" 
+                   TextColor="Red" 
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}" />
         </VerticalStackLayout>
-
-        <!-- Unauthenticated User View -->
-        <VerticalStackLayout Grid.Row="1" Spacing="20" VerticalOptions="Center" IsVisible="{Binding IsAuthenticated, Converter={StaticResource InverseBooleanConverter}}">
-            <Label Text="Recipe Book" FontSize="32" HorizontalOptions="Center" FontAttributes="Bold" Margin="0,0,0,20"/>
-
-            <Label Text="Please login or register to continue" FontSize="18" HorizontalOptions="Center" Margin="0,0,0,20"/>
-
-            <Button Text="Login" Command="{Binding LoginCommand}" Margin="0,0,0,10" />
-
-            <Button Text="Register" Command="{Binding RegisterCommand}" />
-        </VerticalStackLayout>
-
-        <ActivityIndicator Grid.RowSpan="3" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HorizontalOptions="Center" VerticalOptions="Center" />
-    </Grid>
+    </ScrollView>
 </ContentPage>
