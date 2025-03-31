@@ -1,4 +1,5 @@
 ﻿using Microsoft.Maui.Controls;
+using RecipeBook.Models;
 using RecipeBook.ViewModels;
 using System.Threading.Tasks;
 
@@ -46,6 +47,14 @@ namespace RecipeBook.Views
                     // Применяем фильтр
                     _viewModel.FilterByIngredientsCommand.Execute(null);
                 }
+            }
+        }
+
+        private void OnRecipeSelected(object sender, SelectedItemChangedEventArgs e)
+        {
+            if (e.SelectedItem is RecipeModel recipe)
+            {
+                Shell.Current.GoToAsync($"recipedetails?id={recipe.Id}");
             }
         }
     }

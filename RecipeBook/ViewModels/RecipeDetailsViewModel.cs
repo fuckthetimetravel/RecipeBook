@@ -7,6 +7,7 @@ using RecipeBook.Services;
 
 namespace RecipeBook.ViewModels
 {
+    [QueryProperty(nameof(RecipeId), "id")]
     public class RecipeDetailsViewModel : BaseViewModel
     {
         private readonly RecipeService _recipeService;
@@ -14,6 +15,19 @@ namespace RecipeBook.ViewModels
         private RecipeModel _recipe;
         private bool _isOwner;
         private bool _isFavorite;
+        private string _recipeId;
+
+        public string RecipeId
+        {
+            get => _recipeId;
+            set
+            {
+                if (SetProperty(ref _recipeId, value) && !string.IsNullOrEmpty(value))
+                {
+                    LoadRecipeAsync(value).ConfigureAwait(false);
+                }
+            }
+        }
 
         public RecipeModel Recipe
         {
@@ -49,17 +63,39 @@ namespace RecipeBook.ViewModels
 
         public async Task LoadRecipeAsync(string recipeId)
         {
+            if (string.IsNullOrEmpty(recipeId))
+            {
+                await Shell.Current.DisplayAlert("Error", "Recipe ID not provided", "OK");
+                await Shell.Current.GoToAsync("..");
+                return;
+            }
+
             await ExecuteWithBusyIndicator(async () =>
             {
-                Recipe = await _recipeService.GetRecipeAsync(recipeId);
+                try
+                {
+                    Recipe = await _recipeService.GetRecipeAsync(recipeId);
 
-                // Проверяем, является ли текущий пользователь автором рецепта
-                IsOwner = _authService.IsAuthenticated && Recipe.AuthorId == _authService.CurrentUser.Id;
+                    if (Recipe == null)
+                    {
+                        await Shell.Current.DisplayAlert("Error", "Recipe not found", "OK");
+                        await Shell.Current.GoToAsync("..");
+                        return;
+                    }
 
-                // Проверяем, добавлен ли рецепт в избранное
-                IsFavorite = _authService.IsAuthenticated &&
-                             _authService.CurrentUser.FavoriteRecipes != null &&
-                             _authService.CurrentUser.FavoriteRecipes.Contains(recipeId);
+                    // Проверяем, является ли текущий пользователь автором рецепта
+                    IsOwner = _authService.IsAuthenticated && Recipe.AuthorId == _authService.CurrentUser?.Id;
+
+                    // Проверяем, добавлен ли рецепт в избранное
+                    IsFavorite = _authService.IsAuthenticated &&
+                                _authService.CurrentUser?.FavoriteRecipes != null &&
+                                _authService.CurrentUser.FavoriteRecipes.Contains(recipeId);
+                }
+                catch (Exception ex)
+                {
+                    await Shell.Current.DisplayAlert("Error", $"Failed to load recipe: {ex.Message}", "OK");
+                    await Shell.Current.GoToAsync("..");
+                }
             });
         }
 
