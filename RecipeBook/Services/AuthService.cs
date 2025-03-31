@@ -25,6 +25,10 @@ namespace RecipeBook.Services
             LoadSavedAuthDataAsync().ConfigureAwait(false);
         }
 
+        public AuthService()
+        {
+        }
+
         public async Task LoadSavedAuthDataAsync()
         {
             try

@@ -37,6 +37,7 @@ namespace RecipeBook
             builder.Services.AddTransient<SearchRecipesViewModel>();
             builder.Services.AddTransient<MyRecipesViewModel>();
             builder.Services.AddTransient<AddRecipeViewModel>();
+            builder.Services.AddTransient<FavoriteRecipesViewModel>();
 
             // Register Views
             builder.Services.AddTransient<LoginPage>();
@@ -47,7 +48,7 @@ namespace RecipeBook
             builder.Services.AddTransient<SearchRecipesPage>();
             builder.Services.AddTransient<MyRecipesPage>();
             builder.Services.AddTransient<AddRecipePage>();
-
+            builder.Services.AddSingleton<FavoriteRecipesPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

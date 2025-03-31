@@ -16,6 +16,7 @@ namespace RecipeBook.Services
         private AuthService _authService;
         private readonly RecipeSearchService _searchService = new RecipeSearchService();
 
+        public AuthService AuthService { get; internal set; }
 
         public RecipeService(AuthService authService)
         {
