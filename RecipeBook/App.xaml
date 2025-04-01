@@ -12,9 +12,27 @@
             <converters:ObjectNotNullConverter x:Key="ObjectNotNullConverter" />
             <converters:BoolToFavoriteTextConverter x:Key="BoolToFavoriteTextConverter" />
 
+            <!-- Цвета таббара --><!--
+            <Color x:Key="TabBarBackgroundColor">#EAE4D3</Color>
+            --><!-- контрастный песочный --><!--
+            
+            <Color x:Key="TabBarTextColor">#2A2A2A</Color>
+            --><!-- активный --><!--
+            
+            <Color x:Key="TabBarUnselectedColor">#888888</Color>
+            --><!-- неактивный --><!--
+
+            <Style TargetType="Shell">
+                <Setter Property="TabBarBackgroundColor" Value="{StaticResource TabBarBackgroundColor}" />
+                <Setter Property="TabBarTitleColor" Value="{StaticResource TabBarTextColor}" />
+                <Setter Property="TabBarUnselectedColor" Value="Red" />
+            </Style>-->
+
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/CustomColors.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

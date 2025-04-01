@@ -3,9 +3,16 @@
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
        xmlns:views="clr-namespace:RecipeBook.Views"
        x:Class="RecipeBook.AppShell"
-       FlyoutBehavior="Disabled">
+       FlyoutBehavior="Disabled"
+       TabBarBackgroundColor="#EAE4D3"
+       TabBarTitleColor="#2A2A2A"
+       TabBarUnselectedColor="#737373"
+       TabBarDisabledColor="#BDBDBD">
+    
 
-    <TabBar x:Name="AuthenticatedTabBar" IsVisible="True">
+    <TabBar x:Name="AuthenticatedTabBar" 
+            IsVisible="True">
+
         <Tab Title="Profile" Icon="profile_icon.png">
             <ShellContent ContentTemplate="{DataTemplate views:ProfilePage}" />
         </Tab>
