@@ -8,7 +8,7 @@
 
 	<ContentPage.Resources>
 		<converters:Base64ToImageConverter x:Key="Base64ToImageConverter" />
-		<converters:StringToBoolConverter x:Key="StringToBoolConverter" />
+        <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
 	</ContentPage.Resources>
 
 	<ScrollView>

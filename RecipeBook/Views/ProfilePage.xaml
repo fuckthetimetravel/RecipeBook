@@ -7,7 +7,7 @@
              BackgroundColor="{StaticResource BackgroundColor}">
 
     <ContentPage.Resources>
-        <converters:StringToBoolConverter x:Key="StringToBoolConverter" />
+        <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:Base64ToImageConverter x:Key="Base64ToImageConverter" />
     </ContentPage.Resources>

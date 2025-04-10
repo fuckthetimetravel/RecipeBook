@@ -6,12 +6,7 @@
              Title="Recipe Details"
              BackgroundColor="{StaticResource BackgroundColor}">
 
-    <ContentPage.Resources>
-        <converters:Base64ToImageConverter x:Key="Base64ToImageConverter" />
-        <converters:StringToBoolConverter x:Key="StringToBoolConverter" />
-        <converters:BoolToFavoriteTextConverter x:Key="BoolToFavoriteTextConverter" />
-        <converters:BoolToFavoriteColorConverter x:Key="BoolToFavoriteColorConverter" />
-    </ContentPage.Resources>
+
 
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="15">
@@ -114,15 +109,17 @@
 
             <!-- Кнопки -->
             <VerticalStackLayout>
-                <HorizontalStackLayout HorizontalOptions="Center"
-                                   Spacing="10"
-                                   Margin="0,20,0,10">
-                    <Button Text="{Binding IsFavorite, Converter={StaticResource BoolToFavoriteTextConverter}}"
+                
+                <Button Text="{Binding IsFavorite, Converter={StaticResource BoolToFavoriteTextConverter}}"
                         Command="{Binding ToggleFavoriteCommand}"
                         BackgroundColor="{Binding IsFavorite, Converter={StaticResource BoolToFavoriteColorConverter}}"
                         TextColor="White"
                         CornerRadius="10"
-                        WidthRequest="120" />
+                        WidthRequest="260" />
+                
+                <HorizontalStackLayout HorizontalOptions="Center"
+                                       Spacing="10"
+                                       Margin="0,20,0,10">
 
                     <Button Text="Edit"
                         Command="{Binding EditRecipeCommand}"
@@ -130,16 +127,19 @@
                         BackgroundColor="{StaticResource SecondaryAccent}"
                         TextColor="White"
                         CornerRadius="10"
-                        WidthRequest="120" />
-                </HorizontalStackLayout>
+                        WidthRequest="130" />
 
-                <Button Text="Delete"
+                    <Button Text="Delete"
                         Command="{Binding DeleteRecipeCommand}"
                         IsVisible="{Binding IsOwner}"
                         BackgroundColor="{StaticResource ButtonColor}"
                         TextColor="White"
                         CornerRadius="10"
-                        WidthRequest="220" />
+                        WidthRequest="130" />
+                </HorizontalStackLayout>
+
+
+
             </VerticalStackLayout>
         </VerticalStackLayout>
     </ScrollView>
