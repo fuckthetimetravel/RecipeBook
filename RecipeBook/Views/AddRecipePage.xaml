@@ -117,7 +117,7 @@
                             <Button Grid.Row="2" Grid.ColumnSpan="2"
                                     Text="Add Ingredient"
                                     Command="{Binding AddIngredientCommand}"
-                                    BackgroundColor="{StaticResource PrimaryAccent}"
+                                    BackgroundColor="{StaticResource SecondaryAccent}"
                                     TextColor="White"
                                     CornerRadius="10"
                                     Margin="0,10,0,0"
@@ -173,6 +173,24 @@
                         </VerticalStackLayout>
                     </VerticalStackLayout>
                 </Frame>
+
+                <VerticalStackLayout Margin="0,10,0,0">
+                    <Label Text="Location" FontSize="Medium" />
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Entry 
+                            Grid.Column="0"
+                            Text="{Binding Location}" 
+                            Placeholder="Enter recipe location" />
+                        <Button 
+                            Grid.Column="1"
+                            Text="Get Current" 
+                            Command="{Binding GetCurrentLocationCommand}"
+                            BackgroundColor="{StaticResource SecondaryAccent}"
+                            TextColor="White"
+                            CornerRadius="10"
+                            Margin="5,0,0,0" />
+                    </Grid>
+                </VerticalStackLayout>
 
                 <Button Text="Save Recipe"
                         Command="{Binding SaveRecipeCommand}"

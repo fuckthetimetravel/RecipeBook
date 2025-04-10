@@ -24,6 +24,8 @@ namespace RecipeBook.ViewModels
         private string _newStepText;
         private string _errorMessage;
         private RecipeModel _originalRecipe;
+        private string _location;
+        private readonly LocationService _locationService;
 
         public string RecipeId
         {
@@ -86,9 +88,16 @@ namespace RecipeBook.ViewModels
             set => SetProperty(ref _errorMessage, value);
         }
 
+        public string Location
+        {
+            get => _location;
+            set => SetProperty(ref _location, value);
+        }
+
         public ObservableCollection<Ingredient> Ingredients { get; } = new ObservableCollection<Ingredient>();
         public ObservableCollection<RecipeStep> Steps { get; } = new ObservableCollection<RecipeStep>();
 
+        public ICommand GetCurrentLocationCommand { get; }
         public ICommand PickImageCommand { get; }
         public ICommand AddIngredientCommand { get; }
         public ICommand RemoveIngredientCommand { get; }
@@ -96,41 +105,33 @@ namespace RecipeBook.ViewModels
         public ICommand RemoveStepCommand { get; }
         public ICommand SaveRecipeCommand { get; }
 
-        public EditRecipeViewModel(RecipeService recipeService, AuthService authService)
+        public EditRecipeViewModel(RecipeService recipeService, AuthService authService, LocationService locationService)
         {
             _recipeService = recipeService;
             _authService = authService;
+            _locationService = locationService;
 
-            PickImageCommand = new Command(async () => await ExecutePickImageCommand());
+            Ingredients = new ObservableCollection<Ingredient>();
+            Steps = new ObservableCollection<RecipeStep>();
+
             AddIngredientCommand = new Command(ExecuteAddIngredientCommand);
             RemoveIngredientCommand = new Command<Ingredient>(ExecuteRemoveIngredientCommand);
             AddStepCommand = new Command(ExecuteAddStepCommand);
             RemoveStepCommand = new Command<RecipeStep>(ExecuteRemoveStepCommand);
+            PickImageCommand = new Command(async () => await ExecutePickImageCommand());
             SaveRecipeCommand = new Command(async () => await ExecuteSaveRecipeCommand());
+            GetCurrentLocationCommand = new Command(async () => await ExecuteGetCurrentLocationCommand());
         }
 
         private async Task LoadRecipeAsync(string recipeId)
         {
-            if (string.IsNullOrEmpty(recipeId))
+            try
             {
-                ErrorMessage = "Recipe ID not provided";
-                await Shell.Current.GoToAsync("..");
-                return;
-            }
+                IsBusy = true;
+                _originalRecipe = await _recipeService.GetRecipeAsync(recipeId);
 
-            await ExecuteWithBusyIndicator(async () =>
-            {
-                try
+                if (_originalRecipe != null)
                 {
-                    _originalRecipe = await _recipeService.GetRecipeAsync(recipeId);
-
-                    if (_originalRecipe == null)
-                    {
-                        ErrorMessage = "Recipe not found";
-                        await Shell.Current.GoToAsync("..");
-                        return;
-                    }
-
                     // Check if the current user is the author
                     if (!_authService.IsAuthenticated ||
                         _authService.CurrentUser == null ||
@@ -142,31 +143,41 @@ namespace RecipeBook.ViewModels
                         return;
                     }
 
-                    // Populate the form with recipe data
+                    // Set properties
                     Title = _originalRecipe.Title;
                     Description = _originalRecipe.Description;
+                    Location = _originalRecipe.Location; // Load location
                     SelectedImageBase64 = _originalRecipe.ImageBase64;
 
-                    // Clear and populate ingredients
+                    // Clear and add ingredients
                     Ingredients.Clear();
-                    foreach (var ingredient in _originalRecipe.Ingredients)
+                    if (_originalRecipe.Ingredients != null)
                     {
-                        Ingredients.Add(ingredient);
+                        foreach (var ingredient in _originalRecipe.Ingredients)
+                        {
+                            Ingredients.Add(ingredient);
+                        }
                     }
 
-                    // Clear and populate steps
+                    // Clear and add steps
                     Steps.Clear();
-                    foreach (var step in _originalRecipe.Steps)
+                    if (_originalRecipe.Steps != null)
                     {
-                        Steps.Add(step);
+                        foreach (var step in _originalRecipe.Steps)
+                        {
+                            Steps.Add(step);
+                        }
                     }
                 }
-                catch (Exception ex)
-                {
-                    ErrorMessage = $"Failed to load recipe: {ex.Message}";
-                    await Shell.Current.GoToAsync("..");
-                }
-            });
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Failed to load recipe: {ex.Message}";
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         private async Task ExecutePickImageCommand()
@@ -246,23 +257,23 @@ namespace RecipeBook.ViewModels
         {
             await ExecuteWithBusyIndicator(async () =>
             {
-                if (string.IsNullOrWhiteSpace(Title))
-                {
-                    ErrorMessage = "Recipe title is required";
-                    return;
-                }
-
                 try
                 {
-                    // Update the recipe with new values
+                    if (string.IsNullOrWhiteSpace(Title))
+                    {
+                        ErrorMessage = "Recipe title is required";
+                        return;
+                    }
+
                     var updatedRecipe = new RecipeModel
                     {
                         Id = RecipeId,
                         Title = Title,
-                        Description = Description ?? string.Empty,
+                        Description = Description,
                         Ingredients = new List<Ingredient>(Ingredients),
                         Steps = new List<RecipeStep>(Steps),
                         ImageBase64 = SelectedImageBase64,
+                        Location = Location, // Include location
                         AuthorId = _originalRecipe.AuthorId // Preserve the original author
                     };
 
@@ -274,6 +285,29 @@ namespace RecipeBook.ViewModels
                 catch (Exception ex)
                 {
                     ErrorMessage = $"Failed to update recipe: {ex.Message}";
+                }
+            });
+        }
+
+        private async Task ExecuteGetCurrentLocationCommand()
+        {
+            await ExecuteWithBusyIndicator(async () =>
+            {
+                try
+                {
+                    var location = await _locationService.GetCurrentLocationAsync();
+                    if (!string.IsNullOrEmpty(location))
+                    {
+                        Location = location;
+                    }
+                    else
+                    {
+                        await Shell.Current.DisplayAlert("Location Error", "Could not determine your current location.", "OK");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = $"Error getting location: {ex.Message}";
                 }
             });
         }

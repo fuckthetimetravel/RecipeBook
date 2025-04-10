@@ -32,5 +32,8 @@ namespace RecipeBook.Models
 
         [JsonPropertyName("imageBase64")]
         public string ImageBase64 { get; set; } // Изображение блюда в формате Base64
+
+        [JsonPropertyName("location")]
+        public string Location { get; set; } // Местоположение сохранения рецепта
     }
 }

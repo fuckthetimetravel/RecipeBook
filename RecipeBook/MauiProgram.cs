@@ -27,6 +27,7 @@ namespace RecipeBook
             // Register services
             builder.Services.AddSingleton<AuthService>();
             builder.Services.AddSingleton<RecipeService>();
+            builder.Services.AddSingleton<LocationService>();
 
             // Register ViewModels
             builder.Services.AddTransient<LoginViewModel>();

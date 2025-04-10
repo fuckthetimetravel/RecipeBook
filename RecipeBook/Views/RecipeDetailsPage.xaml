@@ -45,6 +45,17 @@
                        TextColor="{StaticResource TextColor}" />
             </Frame>
 
+            <!--Местоположение-->
+            <VerticalStackLayout Margin="0,10,0,0" IsVisible="{Binding Recipe.Location, Converter={StaticResource StringNotEmptyConverter}}">
+                <Label Text="Location:"                    
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource PrimaryAccent}" />
+                <Label Text="{Binding Recipe.Location}" 
+                       FontSize="16"
+                       TextColor="{StaticResource TextColor}" />
+            </VerticalStackLayout>
+
             <!-- Ингредиенты -->
             <Label Text="Ingredients"
                    FontSize="20"
