@@ -6,62 +6,67 @@
 
     <!-- Main content container -->
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="25" VerticalOptions="Center" HorizontalOptions="Center">
+        <VerticalStackLayout Padding="20"
+                             Spacing="25"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Center">
 
             <!-- Login form container -->
             <Frame CornerRadius="20"
-             Padding="25"
-             BackgroundColor="{StaticResource CardBackground}"
-             HasShadow="True"
-             WidthRequest="350">
+                   Padding="25"
+                   BackgroundColor="{StaticResource CardBackground}"
+                   HasShadow="True"
+                   WidthRequest="350">
                 <VerticalStackLayout Spacing="18">
 
                     <!-- App title -->
                     <Label Text="Recipe Book"
-                 FontSize="32"
-                 FontAttributes="Bold"
-                 TextColor="{StaticResource PrimaryAccent}"
-                 HorizontalOptions="Center" />
+                           FontSize="32"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource PrimaryAccent}"
+                           HorizontalOptions="Center" />
 
                     <!-- Subtitle prompting user to log in -->
                     <Label Text="Login to your account"
-                 FontSize="18"
-                 TextColor="{StaticResource TextColor}"
-                 HorizontalOptions="Center" />
+                           FontSize="18"
+                           TextColor="{StaticResource TextColor}"
+                           HorizontalOptions="Center" />
 
                     <!-- Email input field -->
                     <Entry Placeholder="Email"
-                 Text="{Binding Email}"
-                 Keyboard="Email"
-                 TextColor="{StaticResource TextColor}"
-                 HeightRequest="45"/>
+                           PlaceholderColor="{StaticResource PlaceholderColor}"
+                           Text="{Binding Email}"
+                           Keyboard="Email"
+                           TextColor="{StaticResource TextColor}"
+                           HeightRequest="45" />
 
                     <!-- Password input field -->
                     <Entry Placeholder="Password"
-                 Text="{Binding Password}"
-                 IsPassword="True"
-                 TextColor="{StaticResource TextColor}"
-                 HeightRequest="45"/>
+                           PlaceholderColor="{StaticResource PlaceholderColor}"
+                           Text="{Binding Password}"
+                           IsPassword="True"
+                           TextColor="{StaticResource TextColor}"
+                           HeightRequest="45" />
 
                     <!-- Error message (visible when an error occurs) -->
                     <Label Text="{Binding ErrorMessage}"
-                 TextColor="Red"
-                 FontSize="14"
-                 IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+                           TextColor="Red"
+                           FontSize="14"
+                           IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
 
                     <!-- Login button -->
                     <Button Text="Login"
-                  Command="{Binding LoginCommand}"
-                  BackgroundColor="{StaticResource ButtonColor}"
-                  TextColor="White"
-                  CornerRadius="12"
-                  HeightRequest="45" />
+                            Command="{Binding LoginCommand}"
+                            BackgroundColor="{StaticResource ButtonColor}"
+                            TextColor="White"
+                            CornerRadius="12"
+                            HeightRequest="45" />
 
                     <!-- Button to navigate to the registration page -->
                     <Button Text="Don't have an account? Register"
-                  Command="{Binding RegisterCommand}"
-                  BackgroundColor="Transparent"
-                  TextColor="{StaticResource SecondaryAccent}" />
+                            Command="{Binding RegisterCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource SecondaryAccent}" />
                 </VerticalStackLayout>
             </Frame>
         </VerticalStackLayout>

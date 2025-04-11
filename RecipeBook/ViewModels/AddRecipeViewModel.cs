@@ -105,7 +105,7 @@ namespace RecipeBook.ViewModels
         {
             _recipeService = recipeService;
             _locationService = locationService;
-            Title = "Add Recipe";
+            Title = string.Empty;
             Ingredients = new ObservableCollection<Ingredient>();
             Steps = new ObservableCollection<RecipeStep>();
 

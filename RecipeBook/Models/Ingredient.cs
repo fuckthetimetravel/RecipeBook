@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace RecipeBook.Models
 {
-    /// <summary>
-    /// Модель ингредиента
-    /// </summary>
+    // Model representing an ingredient.
     public class Ingredient
     {
+        // Name of the ingredient.
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
+        // Quantity of the ingredient.
         [JsonPropertyName("quantity")]
         public string Quantity { get; set; }
     }
