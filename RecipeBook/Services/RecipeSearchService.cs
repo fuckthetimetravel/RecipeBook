@@ -1,10 +1,13 @@
 ﻿using RecipeBook.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace RecipeBook.Services
 {
     public class RecipeSearchService
     {
-        /// Поиск рецептов по названию (с поддержкой подстрок и опечаток)
+        // Searches recipes by title, supporting substrings and minor typos
         public List<RecipeModel> SearchByTitle(IEnumerable<RecipeModel> recipes, string query)
         {
             if (string.IsNullOrWhiteSpace(query))
@@ -21,7 +24,7 @@ namespace RecipeBook.Services
                 .ToList();
         }
 
-        /// Фильтрация рецептов по ингредиентам (по имени, игнорируя количество)
+        // Filters recipes by ingredients based on their names (ignoring quantity)
         public List<RecipeModel> FilterByIngredients(IEnumerable<RecipeModel> recipes, List<string> ingredientNames)
         {
             if (ingredientNames == null || ingredientNames.Count == 0)
@@ -35,10 +38,7 @@ namespace RecipeBook.Services
             ).ToList();
         }
 
-        // ============================================
-        // PRIVATE HELPERS
-        // ============================================
-
+        // Private helper method to determine if two ingredient names are similar
         private bool IsSimilar(string input, string actual)
         {
             if (string.IsNullOrWhiteSpace(input) || string.IsNullOrWhiteSpace(actual))
@@ -54,12 +54,15 @@ namespace RecipeBook.Services
             return distance <= 2;
         }
 
+        // Computes the Levenshtein distance between two strings
         private int LevenshteinDistance(string a, string b)
         {
             int[,] dp = new int[a.Length + 1, b.Length + 1];
 
-            for (int i = 0; i <= a.Length; i++) dp[i, 0] = i;
-            for (int j = 0; j <= b.Length; j++) dp[0, j] = j;
+            for (int i = 0; i <= a.Length; i++)
+                dp[i, 0] = i;
+            for (int j = 0; j <= b.Length; j++)
+                dp[0, j] = j;
 
             for (int i = 1; i <= a.Length; i++)
             {

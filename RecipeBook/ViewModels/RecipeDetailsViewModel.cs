@@ -7,11 +7,16 @@ using RecipeBook.Services;
 
 namespace RecipeBook.ViewModels
 {
+    // ViewModel for displaying and managing the details of a recipe.
+    // The QueryProperty attribute maps the query parameter "id" to the RecipeId property.
     [QueryProperty(nameof(RecipeId), "id")]
     public class RecipeDetailsViewModel : BaseViewModel
     {
+        // Services for handling recipe operations and user authentication.
         private readonly RecipeService _recipeService;
         private readonly AuthService _authService;
+
+        // Backing fields.
         private RecipeModel _recipe;
         private bool _isOwner;
         private bool _isFavorite;
@@ -24,7 +29,7 @@ namespace RecipeBook.ViewModels
             {
                 if (SetProperty(ref _recipeId, value) && !string.IsNullOrEmpty(value))
                 {
-                    // Load the recipe when the ID is set
+                    // Load the recipe asynchronously when the ID is provided.
                     LoadRecipeAsync(value).ConfigureAwait(false);
                 }
             }
@@ -48,6 +53,7 @@ namespace RecipeBook.ViewModels
             set => SetProperty(ref _isFavorite, value);
         }
 
+        // Commands for UI interactions.
         public ICommand EditRecipeCommand { get; }
         public ICommand DeleteRecipeCommand { get; }
         public ICommand ToggleFavoriteCommand { get; }
@@ -57,11 +63,13 @@ namespace RecipeBook.ViewModels
             _recipeService = recipeService;
             _authService = authService;
 
+            // Initialize commands with asynchronous handlers.
             EditRecipeCommand = new Command(async () => await ExecuteEditRecipeCommand(), () => IsOwner);
             DeleteRecipeCommand = new Command(async () => await ExecuteDeleteRecipeCommand(), () => IsOwner);
             ToggleFavoriteCommand = new Command(async () => await ExecuteToggleFavoriteCommand());
         }
 
+        // Loads the recipe details based on the provided recipe ID.
         public async Task LoadRecipeAsync(string recipeId)
         {
             if (string.IsNullOrEmpty(recipeId))
@@ -75,6 +83,7 @@ namespace RecipeBook.ViewModels
             {
                 try
                 {
+                    // Retrieve the recipe from the service.
                     Recipe = await _recipeService.GetRecipeAsync(recipeId);
 
                     if (Recipe == null)
@@ -84,17 +93,17 @@ namespace RecipeBook.ViewModels
                         return;
                     }
 
-                    // Проверяем, является ли текущий пользователь автором рецепта
+                    // Check if the current user is the owner of the recipe.
                     IsOwner = _authService.IsAuthenticated &&
                               _authService.CurrentUser != null &&
                               Recipe.AuthorId == _authService.CurrentUser.Id;
 
-                    // Проверяем, добавлен ли рецепт в избранное
+                    // Check if the recipe is in the user's favorites.
                     IsFavorite = _authService.IsAuthenticated &&
-                                _authService.CurrentUser?.FavoriteRecipes != null &&
-                                _authService.CurrentUser.FavoriteRecipes.Contains(recipeId);
+                                 _authService.CurrentUser?.FavoriteRecipes != null &&
+                                 _authService.CurrentUser.FavoriteRecipes.Contains(recipeId);
 
-                    // Refresh command can execute status
+                    // Update command execution status based on ownership.
                     ((Command)EditRecipeCommand).ChangeCanExecute();
                     ((Command)DeleteRecipeCommand).ChangeCanExecute();
                 }
@@ -106,6 +115,7 @@ namespace RecipeBook.ViewModels
             });
         }
 
+        // Executes the edit recipe command by navigating to the edit page.
         private async Task ExecuteEditRecipeCommand()
         {
             if (!IsOwner)
@@ -114,11 +124,10 @@ namespace RecipeBook.ViewModels
                     "You can only edit recipes that you created.", "OK");
                 return;
             }
-
-            // Переход на страницу редактирования рецепта
             await Shell.Current.GoToAsync($"editrecipe?id={Recipe.Id}");
         }
 
+        // Executes the delete recipe command after confirming with the user.
         private async Task ExecuteDeleteRecipeCommand()
         {
             if (!IsOwner)
@@ -149,6 +158,7 @@ namespace RecipeBook.ViewModels
             }
         }
 
+        // Toggles the favorite status of the recipe for the current user.
         private async Task ExecuteToggleFavoriteCommand()
         {
             if (!_authService.IsAuthenticated)
@@ -170,7 +180,6 @@ namespace RecipeBook.ViewModels
                     {
                         await _recipeService.AddToFavoritesAsync(Recipe.Id);
                     }
-
                     IsFavorite = !IsFavorite;
                 }
                 catch (Exception ex)

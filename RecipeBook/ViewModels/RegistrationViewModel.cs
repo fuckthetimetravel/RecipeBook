@@ -6,13 +6,16 @@ using RecipeBook.Services;
 
 namespace RecipeBook.ViewModels
 {
+    // ViewModel that handles user registration logic.
     public class RegistrationViewModel : BaseViewModel
     {
         private readonly AuthService _authService;
         private readonly RecipeService _recipeService;
 
+        // Holds the selected profile image file.
         public FileResult SelectedProfileImage { get; set; }
 
+        // Backing fields for user credentials and profile details.
         private string _email;
         private string _password;
         private string _confirmPassword;
@@ -21,61 +24,67 @@ namespace RecipeBook.ViewModels
         private string _profileImageBase64;
         private string _errorMessage;
 
-
+        // User email.
         public string Email
         {
             get => _email;
             set => SetProperty(ref _email, value);
         }
 
+        // User password.
         public string Password
         {
             get => _password;
             set => SetProperty(ref _password, value);
         }
 
+        // Confirmation password.
         public string ConfirmPassword
         {
             get => _confirmPassword;
             set => SetProperty(ref _confirmPassword, value);
         }
 
+        // User first name.
         public string FirstName
         {
             get => _firstName;
             set => SetProperty(ref _firstName, value);
         }
 
+        // User last name.
         public string LastName
         {
             get => _lastName;
             set => SetProperty(ref _lastName, value);
         }
 
+        // Base64-encoded profile image.
         public string ProfileImageBase64
         {
             get => _profileImageBase64;
             set => SetProperty(ref _profileImageBase64, value);
         }
 
-
+        // Error message for displaying validation or processing errors.
         public string ErrorMessage
         {
             get => _errorMessage;
             set => SetProperty(ref _errorMessage, value);
         }
 
+        // Command to execute user registration.
         public ICommand SignUpCommand { get; }
-        
+
+        // Constructor that injects necessary services and initializes the sign-up command.
         public RegistrationViewModel(AuthService authService, RecipeService recipeService)
         {
             _authService = authService;
             _recipeService = recipeService;
-
             SignUpCommand = new Command(async () => await ExecuteSignUpCommand());
         }
 
-
+        // Allows the user to pick a profile image from the device's gallery.
         public async Task PickProfileImageAsync()
         {
             try
@@ -88,6 +97,7 @@ namespace RecipeBook.ViewModels
                 if (result != null)
                 {
                     SelectedProfileImage = result;
+                    // Converts the picked image to a Base64 string.
                     ProfileImageBase64 = await _recipeService.ConvertImageToBase64Async(result);
                 }
             }
@@ -97,6 +107,7 @@ namespace RecipeBook.ViewModels
             }
         }
 
+        // Allows the user to capture a profile photo using the device camera.
         public async Task TakeProfilePhotoAsync()
         {
             try
@@ -109,6 +120,7 @@ namespace RecipeBook.ViewModels
                 if (result != null)
                 {
                     SelectedProfileImage = result;
+                    // Converts the captured image to a Base64 string.
                     ProfileImageBase64 = await _recipeService.ConvertImageToBase64Async(result);
                 }
             }
@@ -118,9 +130,10 @@ namespace RecipeBook.ViewModels
             }
         }
 
+        // Validates input and registers the user.
         private async Task ExecuteSignUpCommand()
         {
-            // Validate input
+            // Validate required fields.
             if (string.IsNullOrWhiteSpace(Email))
             {
                 ErrorMessage = "Email is required";
@@ -139,11 +152,12 @@ namespace RecipeBook.ViewModels
                 return;
             }
 
+            // Execute sign-up within a busy indicator.
             await ExecuteWithBusyIndicator(async () =>
             {
                 try
                 {
-                    // Sign up user
+                    // Call the AuthService to register the user.
                     await _authService.SignUpAsync(
                         Email,
                         Password,
@@ -152,9 +166,8 @@ namespace RecipeBook.ViewModels
                         ProfileImageBase64
                     );
 
-                    // Navigate to main page
+                    // On successful sign-up, navigate to the main application shell.
                     Application.Current.MainPage = new AppShell();
-
                 }
                 catch (Exception ex)
                 {
@@ -163,6 +176,7 @@ namespace RecipeBook.ViewModels
             });
         }
 
+        // Example method to navigate to the login page if needed.
         private async Task ExecuteGoToLoginCommand()
         {
             Application.Current.MainPage = new AppShell();

@@ -3,6 +3,7 @@ using RecipeBook.ViewModels;
 
 namespace RecipeBook.Views
 {
+    // Page for displaying the user's favorite recipes.
     public partial class FavoriteRecipesPage : ContentPage
     {
         private readonly FavoriteRecipesViewModel _viewModel;
@@ -17,7 +18,7 @@ namespace RecipeBook.Views
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            // Load favorite recipes when page appears
+            // Load favorite recipes when the page appears.
             _viewModel.LoadFavoriteRecipesCommand?.Execute(null);
         }
     }

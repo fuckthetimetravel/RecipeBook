@@ -6,135 +6,124 @@
              Title="Profile"
              BackgroundColor="{StaticResource BackgroundColor}">
 
-    <ContentPage.Resources>
-        <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <converters:Base64ToImageConverter x:Key="Base64ToImageConverter" />
-    </ContentPage.Resources>
-
+    <!-- Main content container -->
     <ScrollView>
-
         <VerticalStackLayout Padding="20" Spacing="20">
-
-            <!-- Profile Image -->
+            <!-- Profile Image Section -->
             <Border Stroke="Gray" HeightRequest="200" WidthRequest="200">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="190" />
                 </Border.StrokeShape>
+                <!-- Display the profile image if available -->
                 <Image Source="{Binding ProfileImageBase64, Converter={StaticResource Base64ToImageConverter}}"
-                       IsVisible="{Binding ProfileImageBase64, Converter={StaticResource StringToBoolConverter}}" />
+               IsVisible="{Binding ProfileImageBase64, Converter={StaticResource StringNotEmptyConverter}}" />
             </Border>
+            <!-- Button to change the profile photo (visible only when editing) -->
             <Button Text="Change Photo"
-                    Command="{Binding PickProfileImageCommand}"
-                    IsVisible="{Binding IsEditing}"
-                    BackgroundColor="{StaticResource SecondaryAccent}"
-                    TextColor="White"
-                    CornerRadius="10"
-                    Margin="0,10,0,0" />
+              Command="{Binding PickProfileImageCommand}"
+              IsVisible="{Binding IsEditing}"
+              BackgroundColor="{StaticResource SecondaryAccent}"
+              TextColor="White"
+              CornerRadius="10"
+              Margin="0,10,0,0" />
 
-
-            <!-- Email в шапке -->
+            <!-- Header Email -->
             <Label Text="{Binding Email}"
-                   FontSize="18"
-                   TextColor="{StaticResource TextColor}"
-                   HorizontalOptions="Center"
-                   Margin="0,0,0,10" />
+             FontSize="18"
+             TextColor="{StaticResource TextColor}"
+             HorizontalOptions="Center"
+             Margin="0,0,0,10" />
 
-            <!-- Карточка профиля -->
+            <!-- Profile Card -->
             <Frame BackgroundColor="{StaticResource CardBackground}"
-                   CornerRadius="20"
-                   Padding="20"
-                   HasShadow="True">
-
+             CornerRadius="20"
+             Padding="20"
+             HasShadow="True">
                 <Grid RowDefinitions="Auto,Auto,Auto"
-                      ColumnDefinitions="Auto,*"
-                      ColumnSpacing="10"
-                      RowSpacing="15">
-
+              ColumnDefinitions="Auto,*"
+              ColumnSpacing="10"
+              RowSpacing="15">
                     <!-- First Name -->
                     <Label Text="First Name:"
-                           Grid.Row="0" Grid.Column="0"
-                           FontAttributes="Bold"
-                           TextColor="{StaticResource TextColor}"
-                           VerticalOptions="Center" />
-
+                 Grid.Row="0" Grid.Column="0"
+                 FontAttributes="Bold"
+                 TextColor="{StaticResource TextColor}"
+                 VerticalOptions="Center" />
+                    <!-- When editing, show an Entry; otherwise, show a Label -->
                     <Label Text="{Binding FirstName}"
-                           Grid.Row="0" Grid.Column="1"
-                           IsVisible="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}"
-                           TextColor="{StaticResource TextColor}"
-                           VerticalOptions="Center" />
-
+                 Grid.Row="0" Grid.Column="1"
+                 IsVisible="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}"
+                 TextColor="{StaticResource TextColor}"
+                 VerticalOptions="Center" />
                     <Entry Text="{Binding FirstName}"
-                           Grid.Row="0" Grid.Column="1"
-                           IsVisible="{Binding IsEditing}"
-                           Placeholder="Enter your first name"
-                           TextColor="{StaticResource TextColor}"
-                           HeightRequest="40" />
+                 Grid.Row="0" Grid.Column="1"
+                 IsVisible="{Binding IsEditing}"
+                 Placeholder="Enter your first name"
+                 TextColor="{StaticResource TextColor}"
+                 HeightRequest="40" />
 
                     <!-- Last Name -->
                     <Label Text="Last Name:"
-                           Grid.Row="1" Grid.Column="0"
-                           FontAttributes="Bold"
-                           TextColor="{StaticResource TextColor}"
-                           VerticalOptions="Center" />
-
+                 Grid.Row="1" Grid.Column="0"
+                 FontAttributes="Bold"
+                 TextColor="{StaticResource TextColor}"
+                 VerticalOptions="Center" />
                     <Label Text="{Binding LastName}"
-                           Grid.Row="1" Grid.Column="1"
-                           IsVisible="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}"
-                           TextColor="{StaticResource TextColor}"
-                           VerticalOptions="Center" />
-
+                 Grid.Row="1" Grid.Column="1"
+                 IsVisible="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}"
+                 TextColor="{StaticResource TextColor}"
+                 VerticalOptions="Center" />
                     <Entry Text="{Binding LastName}"
-                           Grid.Row="1" Grid.Column="1"
-                           IsVisible="{Binding IsEditing}"
-                           Placeholder="Enter your last name"
-                           TextColor="{StaticResource TextColor}"
-                           HeightRequest="40" />
+                 Grid.Row="1" Grid.Column="1"
+                 IsVisible="{Binding IsEditing}"
+                 Placeholder="Enter your last name"
+                 TextColor="{StaticResource TextColor}"
+                 HeightRequest="40" />
 
-                    <!-- Email -->
+                    <!-- Email (display only) -->
                     <Label Text="Email:"
-                           Grid.Row="2" Grid.Column="0"
-                           FontAttributes="Bold"
-                           TextColor="{StaticResource TextColor}"
-                           VerticalOptions="Center" />
-
+                 Grid.Row="2" Grid.Column="0"
+                 FontAttributes="Bold"
+                 TextColor="{StaticResource TextColor}"
+                 VerticalOptions="Center" />
                     <Label Text="{Binding Email}"
-                           Grid.Row="2" Grid.Column="1"
-                           TextColor="{StaticResource TextColor}"
-                           VerticalOptions="Center" />
+                 Grid.Row="2" Grid.Column="1"
+                 TextColor="{StaticResource TextColor}"
+                 VerticalOptions="Center" />
                 </Grid>
             </Frame>
 
-            <!-- Кнопки -->
+            <!-- Buttons Section -->
             <VerticalStackLayout Spacing="12" Margin="0,10,0,0">
+                <!-- Button to switch to edit mode (visible only when not editing) -->
                 <Button Text="Edit Profile"
-                        Command="{Binding EditProfileCommand}"
-                        IsVisible="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}"
-                        BackgroundColor="{StaticResource SecondaryAccent}"
-                        TextColor="White"
-                        CornerRadius="10"
-                        HeightRequest="45" />
-
+                Command="{Binding EditProfileCommand}"
+                IsVisible="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}"
+                BackgroundColor="{StaticResource SecondaryAccent}"
+                TextColor="White"
+                CornerRadius="10"
+                HeightRequest="45" />
+                <!-- Button to save profile changes (visible only when editing) -->
                 <Button Text="Save Profile"
-                        Command="{Binding SaveProfileCommand}"
-                        IsVisible="{Binding IsEditing}"
-                        BackgroundColor="{StaticResource PrimaryAccent}"
-                        TextColor="White"
-                        CornerRadius="10"
-                        HeightRequest="45" />
-
+                Command="{Binding SaveProfileCommand}"
+                IsVisible="{Binding IsEditing}"
+                BackgroundColor="{StaticResource PrimaryAccent}"
+                TextColor="White"
+                CornerRadius="10"
+                HeightRequest="45" />
+                <!-- Sign out button -->
                 <Button Text="Sign Out"
-                        Command="{Binding SignOutCommand}"
-                        BackgroundColor="{StaticResource ButtonColor}"
-                        TextColor="White"
-                        CornerRadius="10"
-                        HeightRequest="45" />
+                Command="{Binding SignOutCommand}"
+                BackgroundColor="{StaticResource ButtonColor}"
+                TextColor="White"
+                CornerRadius="10"
+                HeightRequest="45" />
             </VerticalStackLayout>
 
-            <!-- Ошибка -->
+            <!-- Error Message -->
             <Label Text="{Binding ErrorMessage}"
-                   TextColor="Red"
-                   IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}" />
+             TextColor="Red"
+             IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

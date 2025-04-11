@@ -3,6 +3,7 @@ using RecipeBook.ViewModels;
 
 namespace RecipeBook.Views
 {
+    // Page for displaying the user's own recipes.
     public partial class MyRecipesPage : ContentPage
     {
         private readonly MyRecipesViewModel _viewModel;
@@ -14,10 +15,10 @@ namespace RecipeBook.Views
             _viewModel = viewModel;
         }
 
+        // Load recipes when the page appears.
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            // Load recipes when page appears
             _viewModel.LoadRecipesCommand?.Execute(null);
         }
     }

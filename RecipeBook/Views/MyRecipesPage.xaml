@@ -6,87 +6,73 @@
              Title="My Recipes"
              BackgroundColor="{StaticResource BackgroundColor}">
 
-    <ContentPage.Resources>
-        <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
-        <converters:Base64ToImageConverter x:Key="Base64ToImageConverter" />
-    </ContentPage.Resources>
-
+    <!-- Main content container -->
     <Grid RowDefinitions="Auto,*,Auto" Padding="20">
-
-        <!-- Верхняя панель -->
+        <!-- Top panel -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Padding="0,0,0,10">
             <Label Text="My Recipes"
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   TextColor="{StaticResource PrimaryAccent}"
-                   VerticalOptions="Center" />
-
+             FontSize="24"
+             FontAttributes="Bold"
+             TextColor="{StaticResource PrimaryAccent}"
+             VerticalOptions="Center" />
             <Button Grid.Column="1"
-                    Text="Refresh"
-                    Command="{Binding LoadRecipesCommand}"
-                    BackgroundColor="{StaticResource SecondaryAccent}"
-                    TextColor="White"
-                    CornerRadius="10"
-                    Margin="0,0,10,0" />
-
+              Text="Refresh"
+              Command="{Binding LoadRecipesCommand}"
+              BackgroundColor="{StaticResource SecondaryAccent}"
+              TextColor="White"
+              CornerRadius="10"
+              Margin="0,0,10,0" />
             <Button Grid.Column="2"
-                    Text="Add Recipe"
-                    Command="{Binding AddRecipeCommand}"
-                    BackgroundColor="{StaticResource ButtonColor}"
-                    TextColor="White"
-                    CornerRadius="10" />
+              Text="Add Recipe"
+              Command="{Binding AddRecipeCommand}"
+              BackgroundColor="{StaticResource ButtonColor}"
+              TextColor="White"
+              CornerRadius="10" />
         </Grid>
 
-        <!-- Список рецептов -->
+        <!-- Recipes list -->
         <CollectionView Grid.Row="1"
-        ItemsSource="{Binding Recipes}"
-        Margin="0,20,0,0"
-        EmptyView="No recipes found. Try a different search or filter.">
-
+                    ItemsSource="{Binding Recipes}"
+                    Margin="0,20,0,0"
+                    EmptyView="No recipes found. Try a different search or filter.">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Frame Margin="0,0,0,10"
-                   Padding="0"
-                   BackgroundColor="{StaticResource CardBackground}"
-                   CornerRadius="16"
-                   HasShadow="True">
-
+                 Padding="0"
+                 BackgroundColor="{StaticResource CardBackground}"
+                 CornerRadius="16"
+                 HasShadow="True">
                         <VerticalStackLayout Spacing="10" Padding="15">
-
                             <Border Stroke="{StaticResource SecondaryAccent}" HeightRequest="120">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="12" />
                                 </Border.StrokeShape>
                                 <Image Source="{Binding ImageBase64, Converter={StaticResource Base64ToImageConverter}}"
-                               Aspect="AspectFill"
-                               IsVisible="{Binding ImageBase64, Converter={StaticResource StringToBoolConverter}}" />
+                       Aspect="AspectFill"
+                       IsVisible="{Binding ImageBase64, Converter={StaticResource StringNotEmptyConverter}}" />
                             </Border>
-
-                            <Grid RowDefinitions="Auto,Auto"
-                          ColumnDefinitions="*,Auto">
+                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto">
                                 <Label Grid.Row="0"
-                               Grid.Column="0"
-                               Text="{Binding Title}"
-                               FontAttributes="Bold"
-                               FontSize="16"
-                               TextColor="{StaticResource TextColor}" />
-
+                       Grid.Column="0"
+                       Text="{Binding Title}"
+                       FontAttributes="Bold"
+                       FontSize="16"
+                       TextColor="{StaticResource TextColor}" />
                                 <Label Grid.Row="1"
-                               Grid.Column="0"
-                               Text="{Binding Description}"
-                               LineBreakMode="TailTruncation"
-                               MaxLines="3"
-                               TextColor="{StaticResource TextColor}" />
-
+                       Grid.Column="0"
+                       Text="{Binding Description}"
+                       LineBreakMode="TailTruncation"
+                       MaxLines="3"
+                       TextColor="{StaticResource TextColor}" />
                                 <Button Grid.RowSpan="2"
-                                Grid.Column="1"
-                                Text="View"
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RecipeTappedCommand}"
-                                CommandParameter="{Binding .}"
-                                BackgroundColor="{StaticResource SecondaryAccent}"
-                                TextColor="White"
-                                CornerRadius="10"
-                                VerticalOptions="Center" />
+                        Grid.Column="1"
+                        Text="View"
+                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RecipeTappedCommand}"
+                        CommandParameter="{Binding .}"
+                        BackgroundColor="{StaticResource SecondaryAccent}"
+                        TextColor="White"
+                        CornerRadius="10"
+                        VerticalOptions="Center" />
                             </Grid>
                         </VerticalStackLayout>
                     </Frame>
@@ -94,17 +80,17 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <!-- Ошибка -->
+        <!-- Error message -->
         <Label Grid.Row="2"
-               Text="{Binding ErrorMessage}"
-               TextColor="Red"
-               IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+           Text="{Binding ErrorMessage}"
+           TextColor="Red"
+           IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
 
-        <!-- Индикатор загрузки -->
+        <!-- Loading indicator -->
         <ActivityIndicator Grid.RowSpan="3"
-                           IsRunning="{Binding IsBusy}"
-                           IsVisible="{Binding IsBusy}"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center" />
+                       IsRunning="{Binding IsBusy}"
+                       IsVisible="{Binding IsBusy}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
     </Grid>
 </ContentPage>

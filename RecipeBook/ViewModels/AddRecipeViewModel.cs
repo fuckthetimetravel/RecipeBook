@@ -9,9 +9,15 @@ using RecipeBook.Services;
 
 namespace RecipeBook.ViewModels
 {
+    // ViewModel for adding a new recipe
     public class AddRecipeViewModel : BaseViewModel
     {
+        // Service used to perform recipe-related operations
         private readonly RecipeService _recipeService;
+        // Service used to retrieve the current location
+        private readonly LocationService _locationService;
+
+        // Backing fields for properties
         private string _title;
         private string _description;
         private ObservableCollection<Ingredient> _ingredients;
@@ -22,8 +28,8 @@ namespace RecipeBook.ViewModels
         private FileResult _selectedImage;
         private string _selectedImageBase64;
         private string _location;
-        private readonly LocationService _locationService;
 
+        // Public properties for data binding
         public string Title
         {
             get => _title;
@@ -84,7 +90,7 @@ namespace RecipeBook.ViewModels
             set => SetProperty(ref _location, value);
         }
 
-
+        // Commands for user interactions in the view
         public ICommand GetCurrentLocationCommand { get; }
         public ICommand AddIngredientCommand { get; }
         public ICommand RemoveIngredientCommand { get; }
@@ -94,6 +100,7 @@ namespace RecipeBook.ViewModels
         public ICommand TakePhotoCommand { get; }
         public ICommand SaveRecipeCommand { get; }
 
+        // Constructor initializing services, collections, and commands
         public AddRecipeViewModel(RecipeService recipeService, LocationService locationService)
         {
             _recipeService = recipeService;
@@ -102,6 +109,7 @@ namespace RecipeBook.ViewModels
             Ingredients = new ObservableCollection<Ingredient>();
             Steps = new ObservableCollection<RecipeStep>();
 
+            // Initialize command implementations
             AddIngredientCommand = new Command(ExecuteAddIngredientCommand);
             RemoveIngredientCommand = new Command<Ingredient>(ExecuteRemoveIngredientCommand);
             AddStepCommand = new Command(ExecuteAddStepCommand);
@@ -112,6 +120,7 @@ namespace RecipeBook.ViewModels
             GetCurrentLocationCommand = new Command(async () => await ExecuteGetCurrentLocationCommand());
         }
 
+        // Adds a new ingredient to the recipe
         private void ExecuteAddIngredientCommand()
         {
             if (string.IsNullOrWhiteSpace(NewIngredientName))
@@ -126,15 +135,18 @@ namespace RecipeBook.ViewModels
                 Quantity = NewIngredientQuantity
             });
 
+            // Clear input fields after adding
             NewIngredientName = string.Empty;
             NewIngredientQuantity = string.Empty;
         }
 
+        // Removes a specified ingredient from the recipe
         private void ExecuteRemoveIngredientCommand(Ingredient ingredient)
         {
             Ingredients.Remove(ingredient);
         }
 
+        // Adds a new step to the recipe process
         private void ExecuteAddStepCommand()
         {
             if (string.IsNullOrWhiteSpace(NewStepText))
@@ -148,14 +160,17 @@ namespace RecipeBook.ViewModels
                 Text = NewStepText
             });
 
+            // Clear the step input field after adding
             NewStepText = string.Empty;
         }
 
+        // Removes a specified step from the recipe process
         private void ExecuteRemoveStepCommand(RecipeStep step)
         {
             Steps.Remove(step);
         }
 
+        // Command to pick an image from the device's photo library
         private async Task ExecutePickImageCommand()
         {
             try
@@ -177,6 +192,7 @@ namespace RecipeBook.ViewModels
             }
         }
 
+        // Command to take a photo using the device's camera
         private async Task ExecuteTakePhotoCommand()
         {
             try
@@ -198,6 +214,7 @@ namespace RecipeBook.ViewModels
             }
         }
 
+        // Command to save the new recipe by sending it to the RecipeService
         private async Task ExecuteSaveRecipeCommand()
         {
             await ExecuteWithBusyIndicator(async () =>
@@ -208,29 +225,33 @@ namespace RecipeBook.ViewModels
                     return;
                 }
 
+                // Create a new RecipeModel instance from the entered data
                 var recipe = new RecipeModel
                 {
                     Title = _title,
                     Description = _description ?? string.Empty,
                     Ingredients = new List<Ingredient>(Ingredients),
                     Steps = new List<RecipeStep>(Steps),
-                    ImageBase64 = _selectedImageBase64, // Устанавливаем изображение для всего рецепта
-                    Location = _location // Добавляем местоположение
+                    ImageBase64 = _selectedImageBase64,
+                    Location = _location
                 };
 
+                // Call the service to add the recipe to the database
                 await _recipeService.AddRecipeAsync(recipe);
 
-                // Reset form
+                // Reset form fields after saving
                 _title = string.Empty;
                 _description = string.Empty;
-                _location = string.Empty; // Reset location
+                _location = string.Empty;
                 Ingredients.Clear();
                 Steps.Clear();
                 SelectedImage = null;
                 SelectedImageBase64 = null;
+
+                // Notify property changes for bound fields
                 OnPropertyChanged(nameof(Title));
                 OnPropertyChanged(nameof(Description));
-                OnPropertyChanged(nameof(Location)); // Notify location change
+                OnPropertyChanged(nameof(Location));
                 OnPropertyChanged(nameof(SelectedImage));
                 OnPropertyChanged(nameof(SelectedImageBase64));
 
@@ -238,6 +259,7 @@ namespace RecipeBook.ViewModels
             });
         }
 
+        // Command to retrieve the current location and update the Location property
         private async Task ExecuteGetCurrentLocationCommand()
         {
             await ExecuteWithBusyIndicator(async () =>

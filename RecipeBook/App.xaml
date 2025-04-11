@@ -1,23 +1,26 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!-- The main application definition for RecipeBook -->
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:RecipeBook"
              xmlns:converters="clr-namespace:RecipeBook.Converters"
              x:Class="RecipeBook.App">
+    
     <Application.Resources>
+    
+        <!-- Define the resource dictionary to store shared resources -->
         <ResourceDictionary>
-            <!-- Converters -->
+            <!-- Converters: these are used to convert data types in bindings -->
             <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
             <converters:BoolToFavoriteTextConverter x:Key="BoolToFavoriteTextConverter" />
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <converters:Base64ToImageConverter x:Key="Base64ToImageConverter" />
             <converters:BoolToFavoriteColorConverter x:Key="BoolToFavoriteColorConverter" />
-            
 
+            <!-- Merged dictionaries: include external resource dictionaries, such as custom color definitions -->
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/CustomColors.xaml" />
             </ResourceDictionary.MergedDictionaries>
-
 
         </ResourceDictionary>
     </Application.Resources>

@@ -3,6 +3,7 @@ using RecipeBook.ViewModels;
 
 namespace RecipeBook.Views
 {
+    // Page for editing a recipe that binds to EditRecipeViewModel.
     public partial class EditRecipePage : ContentPage
     {
         private readonly EditRecipeViewModel _viewModel;

@@ -7,13 +7,15 @@ using RecipeBook.Views;
 
 namespace RecipeBook
 {
+    // Main application class for RecipeBook.
     public partial class App : Application
     {
+        // Constructor receives required services and view models via dependency injection.
         public App(AuthService authService, LoginViewModel loginViewModel)
         {
             InitializeComponent();
 
-            // Временная заглушка, чтобы избежать исключения
+            // Placeholder to avoid exceptions during initialization.
             MainPage = new ContentPage
             {
                 Content = new ActivityIndicator
@@ -27,11 +29,13 @@ namespace RecipeBook
             InitializeApp(authService, loginViewModel);
         }
 
-
+        // Asynchronously initializes the app by loading saved auth data.
         private async void InitializeApp(AuthService authService, LoginViewModel loginViewModel)
         {
+            // Load saved authentication data
             await authService.LoadSavedAuthDataAsync();
 
+            // If the user is authenticated, navigate to the main shell; otherwise, show the login page.
             if (authService.IsAuthenticated)
             {
                 MainPage = new AppShell();
@@ -42,5 +46,4 @@ namespace RecipeBook
             }
         }
     }
-
 }

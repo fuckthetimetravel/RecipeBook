@@ -6,210 +6,231 @@
              x:Name="AddRecipePageView"
              BackgroundColor="{StaticResource BackgroundColor}">
 
-    <ContentPage.Resources>
-        <converters:Base64ToImageConverter x:Key="Base64ToImageConverter" />
-        <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
-    </ContentPage.Resources>
-
     <ScrollView>
+        <!-- Main container grid with padding -->
         <Grid RowDefinitions="Auto,*,Auto" Padding="20">
             <VerticalStackLayout Grid.Row="1" Spacing="20">
+
+                <!-- Header label -->
                 <Label Text="Add New Recipe"
-                       FontSize="24"
-                       HorizontalOptions="Center"
-                       FontAttributes="Bold"
-                       TextColor="{StaticResource PrimaryAccent}" />
+               FontSize="24"
+               HorizontalOptions="Center"
+               FontAttributes="Bold"
+               TextColor="{StaticResource PrimaryAccent}" />
 
-                <!-- Recipe Basic Info -->
+                <!-- Recipe Basic Information Section -->
                 <VerticalStackLayout Spacing="10">
-                    <Label Text="Recipe Title" FontAttributes="Bold" TextColor="{StaticResource TextColor}" />
+                    <Label Text="Recipe Title" 
+                 FontAttributes="Bold" 
+                 TextColor="{StaticResource TextColor}" />
                     <Entry Placeholder="Enter recipe title"
-                           Text="{Binding Title}"
-                           TextColor="{StaticResource TextColor}" />
+                 Text="{Binding Title}"
+                 TextColor="{StaticResource TextColor}" />
 
-                    <Label Text="Description" FontAttributes="Bold" TextColor="{StaticResource TextColor}" Margin="0,10,0,0" />
+                    <Label Text="Description" 
+                 FontAttributes="Bold" 
+                 TextColor="{StaticResource TextColor}" 
+                 Margin="0,10,0,0" />
                     <Editor Placeholder="Enter recipe description"
-                            Text="{Binding Description}"
-                            HeightRequest="100"
-                            TextColor="{StaticResource TextColor}" />
+                  Text="{Binding Description}"
+                  HeightRequest="100"
+                  TextColor="{StaticResource TextColor}" />
                 </VerticalStackLayout>
 
-                <!-- Recipe Image -->
+                <!-- Recipe Image Section -->
                 <Frame Padding="15"
-                       Margin="0,10,0,0"
-                       BackgroundColor="{StaticResource CardBackground}"
-                       CornerRadius="16"
-                       HasShadow="True">
+               Margin="0,10,0,0"
+               BackgroundColor="{StaticResource CardBackground}"
+               CornerRadius="16"
+               HasShadow="True">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Recipe Image"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource SecondaryAccent}" />
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource SecondaryAccent}" />
 
+                        <!-- Buttons for picking or capturing an image -->
                         <HorizontalStackLayout Spacing="10">
                             <Button Text="Pick Image"
-                                    Command="{Binding PickImageCommand}"
-                                    BackgroundColor="{StaticResource SecondaryAccent}"
-                                    TextColor="White"
-                                    CornerRadius="10" />
+                      Command="{Binding PickImageCommand}"
+                      BackgroundColor="{StaticResource SecondaryAccent}"
+                      TextColor="White"
+                      CornerRadius="10" />
                             <Button Text="Take Photo"
-                                    Command="{Binding TakePhotoCommand}"
-                                    BackgroundColor="{StaticResource PrimaryAccent}"
-                                    TextColor="White"
-                                    CornerRadius="10" />
+                      Command="{Binding TakePhotoCommand}"
+                      BackgroundColor="{StaticResource PrimaryAccent}"
+                      TextColor="White"
+                      CornerRadius="10" />
                         </HorizontalStackLayout>
 
+                        <!-- Display the selected image -->
                         <Image Source="{Binding SelectedImageBase64, Converter={StaticResource Base64ToImageConverter}}"
-                               HeightRequest="200"
-                               Aspect="AspectFill"
-                               IsVisible="{Binding SelectedImageBase64, Converter={StaticResource StringNotEmptyConverter}}" />
+                   HeightRequest="200"
+                   Aspect="AspectFill"
+                   IsVisible="{Binding SelectedImageBase64, Converter={StaticResource StringNotEmptyConverter}}" />
                     </VerticalStackLayout>
                 </Frame>
 
                 <!-- Ingredients Section -->
                 <Frame Padding="15"
-                       Margin="0,10,0,0"
-                       BackgroundColor="{StaticResource CardBackground}"
-                       CornerRadius="16"
-                       HasShadow="True">
+               Margin="0,10,0,0"
+               BackgroundColor="{StaticResource CardBackground}"
+               CornerRadius="16"
+               HasShadow="True">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Ingredients"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource SecondaryAccent}" />
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource SecondaryAccent}" />
 
+                        <!-- List of ingredients -->
                         <CollectionView ItemsSource="{Binding Ingredients}" EmptyView="No ingredients added yet">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
                                     <Grid ColumnDefinitions="*, Auto" Padding="0,5">
                                         <VerticalStackLayout Grid.Column="0">
-                                            <Label Text="{Binding Name}" FontAttributes="Bold" TextColor="{StaticResource TextColor}" />
-                                            <Label Text="{Binding Quantity}" TextColor="{StaticResource TextColor}" />
+                                            <Label Text="{Binding Name}"
+                             FontAttributes="Bold"
+                             TextColor="{StaticResource TextColor}" />
+                                            <Label Text="{Binding Quantity}"
+                             TextColor="{StaticResource TextColor}" />
                                         </VerticalStackLayout>
+                                        <!-- Remove ingredient button -->
                                         <Button Grid.Column="1"
-                                                Text="Remove"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveIngredientCommand}"
-                                                CommandParameter="{Binding .}"
-                                                BackgroundColor="{StaticResource ButtonColor}"
-                                                TextColor="White"
-                                                CornerRadius="10" />
+                            Text="Remove"
+                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveIngredientCommand}"
+                            CommandParameter="{Binding .}"
+                            BackgroundColor="{StaticResource ButtonColor}"
+                            TextColor="White"
+                            CornerRadius="10" />
                                     </Grid>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                         </CollectionView>
 
+                        <!-- Add new ingredient input fields -->
                         <Grid ColumnDefinitions="*, Auto"
-                              RowDefinitions="Auto, Auto, Auto"
-                              Margin="0,10,0,0">
-                            <Label Grid.Row="0" Grid.Column="0" Text="Ingredient Name" TextColor="{StaticResource TextColor}" />
+                  RowDefinitions="Auto, Auto, Auto"
+                  Margin="0,10,0,0">
+                            <Label Grid.Row="0" Grid.Column="0" 
+                     Text="Ingredient Name" 
+                     TextColor="{StaticResource TextColor}" />
                             <Entry Grid.Row="1" Grid.Column="0"
-                                   Placeholder="Enter ingredient name"
-                                   Text="{Binding NewIngredientName}"
-                                   HeightRequest="40" />
+                     Placeholder="Enter ingredient name"
+                     Text="{Binding NewIngredientName}"
+                     HeightRequest="40" />
 
-                            <Label Grid.Row="0" Grid.Column="1" Text="Quantity" TextColor="{StaticResource TextColor}" />
+                            <Label Grid.Row="0" Grid.Column="1" 
+                     Text="Quantity" 
+                     TextColor="{StaticResource TextColor}" />
                             <Entry Grid.Row="1" Grid.Column="1"
-                                   Placeholder="Amount"
-                                   Text="{Binding NewIngredientQuantity}"
-                                   Margin="10,0,0,0"
-                                   HeightRequest="40" />
+                     Placeholder="Amount"
+                     Text="{Binding NewIngredientQuantity}"
+                     Margin="10,0,0,0"
+                     HeightRequest="40" />
 
                             <Button Grid.Row="2" Grid.ColumnSpan="2"
-                                    Text="Add Ingredient"
-                                    Command="{Binding AddIngredientCommand}"
-                                    BackgroundColor="{StaticResource SecondaryAccent}"
-                                    TextColor="White"
-                                    CornerRadius="10"
-                                    Margin="0,10,0,0"
-                                    HeightRequest="45" />
+                      Text="Add Ingredient"
+                      Command="{Binding AddIngredientCommand}"
+                      BackgroundColor="{StaticResource SecondaryAccent}"
+                      TextColor="White"
+                      CornerRadius="10"
+                      Margin="0,10,0,0"
+                      HeightRequest="45" />
                         </Grid>
                     </VerticalStackLayout>
                 </Frame>
 
-                <!-- Steps Section -->
+                <!-- Preparation Steps Section -->
                 <Frame Padding="15"
-                       Margin="0,10,0,0"
-                       BackgroundColor="{StaticResource CardBackground}"
-                       CornerRadius="16"
-                       HasShadow="True">
+               Margin="0,10,0,0"
+               BackgroundColor="{StaticResource CardBackground}"
+               CornerRadius="16"
+               HasShadow="True">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Preparation Steps"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource SecondaryAccent}" />
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource SecondaryAccent}" />
 
+                        <!-- List of steps -->
                         <CollectionView ItemsSource="{Binding Steps}" EmptyView="No steps added yet">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
                                     <Grid ColumnDefinitions="*, Auto" Padding="0,10">
                                         <Label Grid.Column="0"
-                                               Text="{Binding Text}"
-                                               TextColor="{StaticResource TextColor}" />
+                           Text="{Binding Text}"
+                           TextColor="{StaticResource TextColor}" />
+                                        <!-- Remove step button -->
                                         <Button Grid.Column="1"
-                                                Text="Remove"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveStepCommand}"
-                                                CommandParameter="{Binding .}"
-                                                BackgroundColor="{StaticResource ButtonColor}"
-                                                TextColor="White"
-                                                CornerRadius="10" />
+                            Text="Remove"
+                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveStepCommand}"
+                            CommandParameter="{Binding .}"
+                            BackgroundColor="{StaticResource ButtonColor}"
+                            TextColor="White"
+                            CornerRadius="10" />
                                     </Grid>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                         </CollectionView>
 
+                        <!-- Add new step input fields -->
                         <VerticalStackLayout Spacing="10" Margin="0,10,0,0">
-                            <Label Text="Step Description" TextColor="{StaticResource TextColor}" />
+                            <Label Text="Step Description" 
+                     TextColor="{StaticResource TextColor}" />
                             <Editor Placeholder="Describe this step"
-                                    Text="{Binding NewStepText}"
-                                    HeightRequest="100"
-                                    TextColor="{StaticResource TextColor}" />
+                      Text="{Binding NewStepText}"
+                      HeightRequest="100"
+                      TextColor="{StaticResource TextColor}" />
 
                             <Button Text="Add Step"
-                                    Command="{Binding AddStepCommand}"
-                                    BackgroundColor="{StaticResource SecondaryAccent}"
-                                    TextColor="White"
-                                    CornerRadius="10"
-                                    HeightRequest="45" />
+                      Command="{Binding AddStepCommand}"
+                      BackgroundColor="{StaticResource SecondaryAccent}"
+                      TextColor="White"
+                      CornerRadius="10"
+                      HeightRequest="45" />
                         </VerticalStackLayout>
                     </VerticalStackLayout>
                 </Frame>
 
+                <!-- Location Section -->
                 <VerticalStackLayout Margin="0,10,0,0">
-                    <Label Text="Location" FontSize="Medium" />
+                    <Label Text="Location" 
+                 FontSize="Medium" />
                     <Grid ColumnDefinitions="*, Auto">
-                        <Entry 
-                            Grid.Column="0"
-                            Text="{Binding Location}" 
-                            Placeholder="Enter recipe location" />
-                        <Button 
-                            Grid.Column="1"
-                            Text="Get Current" 
-                            Command="{Binding GetCurrentLocationCommand}"
-                            BackgroundColor="{StaticResource SecondaryAccent}"
-                            TextColor="White"
-                            CornerRadius="10"
-                            Margin="5,0,0,0" />
+                        <Entry Grid.Column="0"
+                   Text="{Binding Location}"
+                   Placeholder="Enter recipe location" />
+                        <Button Grid.Column="1"
+                    Text="Get Current"
+                    Command="{Binding GetCurrentLocationCommand}"
+                    BackgroundColor="{StaticResource SecondaryAccent}"
+                    TextColor="White"
+                    CornerRadius="10"
+                    Margin="5,0,0,0" />
                     </Grid>
                 </VerticalStackLayout>
 
+                <!-- Save Button and Error Message -->
                 <Button Text="Save Recipe"
-                        Command="{Binding SaveRecipeCommand}"
-                        BackgroundColor="{StaticResource PrimaryAccent}"
-                        TextColor="White"
-                        CornerRadius="10"
-                        HeightRequest="50"
-                        Margin="0,20,0,20" />
+                Command="{Binding SaveRecipeCommand}"
+                BackgroundColor="{StaticResource PrimaryAccent}"
+                TextColor="White"
+                CornerRadius="10"
+                HeightRequest="50"
+                Margin="0,20,0,20" />
 
                 <Label Text="{Binding ErrorMessage}"
-                       TextColor="Red"
-                       IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+               TextColor="Red"
+               IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
             </VerticalStackLayout>
 
+            <!-- Activity Indicator to display loading state -->
             <ActivityIndicator Grid.RowSpan="3"
-                               IsRunning="{Binding IsBusy}"
-                               IsVisible="{Binding IsBusy}"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center" />
+                         IsRunning="{Binding IsBusy}"
+                         IsVisible="{Binding IsBusy}"
+                         HorizontalOptions="Center"
+                         VerticalOptions="Center" />
         </Grid>
     </ScrollView>
 </ContentPage>
