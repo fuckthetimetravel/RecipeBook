@@ -82,5 +82,10 @@ namespace RecipeBook.ViewModels
                 IsBusy = false;
             }
         }
+
+        public virtual void OnDisappearing()
+        {
+            // Base implementation does nothing
+        }
     }
 }

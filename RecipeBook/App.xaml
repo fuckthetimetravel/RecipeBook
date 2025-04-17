@@ -16,7 +16,8 @@
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <converters:Base64ToImageConverter x:Key="Base64ToImageConverter" />
             <converters:BoolToFavoriteColorConverter x:Key="BoolToFavoriteColorConverter" />
-
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+            
             <!-- Merged dictionaries: include external resource dictionaries, such as custom color definitions -->
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/CustomColors.xaml" />

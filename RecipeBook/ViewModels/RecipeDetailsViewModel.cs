@@ -15,12 +15,14 @@ namespace RecipeBook.ViewModels
         // Services for handling recipe operations and user authentication.
         private readonly RecipeService _recipeService;
         private readonly AuthService _authService;
+        private readonly SpeechService _speechService;
 
         // Backing fields.
         private RecipeModel _recipe;
         private bool _isOwner;
         private bool _isFavorite;
         private string _recipeId;
+        private bool _isSpeaking;
 
         public string RecipeId
         {
@@ -53,20 +55,30 @@ namespace RecipeBook.ViewModels
             set => SetProperty(ref _isFavorite, value);
         }
 
+        public bool IsSpeaking
+        {
+            get => _isSpeaking;
+            set => SetProperty(ref _isSpeaking, value);
+        }
+
         // Commands for UI interactions.
         public ICommand EditRecipeCommand { get; }
         public ICommand DeleteRecipeCommand { get; }
         public ICommand ToggleFavoriteCommand { get; }
-
-        public RecipeDetailsViewModel(RecipeService recipeService, AuthService authService)
+        public ICommand SpeakStepsCommand { get; }
+        public ICommand StopSpeakingCommand { get; }
+        public RecipeDetailsViewModel(RecipeService recipeService, AuthService authService, SpeechService speechService)
         {
             _recipeService = recipeService;
             _authService = authService;
+            _speechService = speechService;
 
             // Initialize commands with asynchronous handlers.
             EditRecipeCommand = new Command(async () => await ExecuteEditRecipeCommand(), () => IsOwner);
             DeleteRecipeCommand = new Command(async () => await ExecuteDeleteRecipeCommand(), () => IsOwner);
             ToggleFavoriteCommand = new Command(async () => await ExecuteToggleFavoriteCommand());
+            SpeakStepsCommand = new Command(async () => await ExecuteSpeakStepsCommand());
+            StopSpeakingCommand = new Command(ExecuteStopSpeakingCommand);
         }
 
         // Loads the recipe details based on the provided recipe ID.
@@ -188,6 +200,33 @@ namespace RecipeBook.ViewModels
                         $"Failed to update favorites: {ex.Message}", "OK");
                 }
             });
+        }
+
+        private async Task ExecuteSpeakStepsCommand()
+        {
+            if (Recipe?.Steps == null || Recipe.Steps.Count == 0)
+            {
+                await Shell.Current.DisplayAlert("No Steps", "This recipe has no steps to read.", "OK");
+                return;
+            }
+
+            IsSpeaking = true;
+            await _speechService.SpeakRecipeStepsAsync(Recipe.Steps);
+            IsSpeaking = _speechService.IsSpeaking;
+        }
+
+        private void ExecuteStopSpeakingCommand()
+        {
+            _speechService.StopSpeaking();
+            IsSpeaking = false;
+        }
+
+        // Stops any ongoing speech and resets the speaking flag.
+        public void OnDisappearing()
+        {
+            // Make sure to stop speaking when leaving the page
+            _speechService.StopSpeaking();
+            IsSpeaking = false;
         }
     }
 }

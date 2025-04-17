@@ -32,6 +32,7 @@ namespace RecipeBook
             builder.Services.AddSingleton<AuthService>();      // Manages authentication and user data.
             builder.Services.AddSingleton<RecipeService>();    // Handles CRUD operations for recipes.
             builder.Services.AddSingleton<LocationService>();  // Provides access to location data.
+            builder.Services.AddSingleton<SpeechService>();    // Speech to text
 
             // Register ViewModels with transient lifetime (a new instance is created every time).
             builder.Services.AddTransient<LoginViewModel>();

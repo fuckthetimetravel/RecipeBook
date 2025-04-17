@@ -9,10 +9,10 @@ namespace RecipeBook.FirebaseConfig
     public static class FirebaseConfig
     {
         // Замените на ваши данные Firebase
-        public const string ApiKey = "AIzaSyB341R8lYwH-HLeks2T-8lCnqBMaP64q4k";
-        public const string AuthDomain = "recipebookproj-dc40a.firebaseapp.com";
-        public const string ProjectId = "recipebookproj-dc40a";
-        public const string DatabaseUrl = "https://recipebookproj-dc40a-default-rtdb.firebaseio.com/";
+        public const string ApiKey = "AIzaSyALxkiSSehbYeO8YmL621_e0xpaTsqFybg";
+        public const string AuthDomain = "recipebook-15d21.firebaseapp.com";
+        public const string ProjectId = "recipebook-15d21";
+        public const string DatabaseUrl = "https://recipebook-15d21-default-rtdb.europe-west1.firebasedatabase.app/";
 
         // Базовые URL для REST API
         public const string AuthBaseUrl = "https://identitytoolkit.googleapis.com/v1/";

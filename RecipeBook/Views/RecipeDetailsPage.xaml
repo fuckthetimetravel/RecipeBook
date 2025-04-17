@@ -111,6 +111,40 @@
                 </ListView.ItemTemplate>
             </ListView>
 
+            <!-- Hands-free mode Section -->
+            <VerticalStackLayout Margin="0,20,0,0">
+                <Label Text="Audio Controls"
+                       TextColor="{StaticResource SecondaryAccent}"
+                       FontSize="Medium"
+                       FontAttributes="Bold" />
+                <Grid ColumnDefinitions="*,*"
+                      Margin="0,10,0,0">
+                    <Label Grid.Column="0"
+                           TextColor="{StaticResource TextColor}"
+                           Text="Hands-free cooking mode"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Start" />
+
+                    <Button Grid.Column="1"
+                            Text="Read Steps"
+                            Command="{Binding SpeakStepsCommand}"
+                            IsVisible="{Binding IsSpeaking, Converter={StaticResource InverseBoolConverter}}"
+                            BackgroundColor="{StaticResource SecondaryAccent}"
+                            CornerRadius="10"
+                            TextColor="White"
+                            Margin="0,0,5,0" />
+                    <Button Grid.Column="1"
+                            Text="Stop Reading"
+                            Command="{Binding StopSpeakingCommand}"
+                            IsVisible="{Binding IsSpeaking}"
+                            BackgroundColor="{StaticResource ButtonColor}"
+                            CornerRadius="10"
+                            TextColor="White"
+                            Margin="0,0,5,0" />
+
+                </Grid>
+            </VerticalStackLayout>
+
             <!-- Action Buttons Section -->
             <VerticalStackLayout>
                 <!-- Favorite Toggle Button -->

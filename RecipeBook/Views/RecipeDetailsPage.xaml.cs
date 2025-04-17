@@ -14,5 +14,13 @@ namespace RecipeBook.Views
             BindingContext = viewModel;
             _viewModel = viewModel;
         }
+
+        // Called when the page is about to disappear from view.
+        // Invokes the ViewModel’s cleanup logic.
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            _viewModel.OnDisappearing();
+        }
     }
 }
